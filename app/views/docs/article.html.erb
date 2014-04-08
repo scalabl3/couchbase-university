@@ -1,0 +1,80 @@
+<% content_for :css do
+  stylesheet_link_tag 'docs'
+end %>
+
+<ol id="doc-breadcrumb" class="breadcrumb">
+  <li>
+      <a href="/d/home">
+        <i class="fa fa-home"></i>
+      </a>
+  </li>
+  <% @doc.breadcrumb.each do |b| %>
+    <% if b.dropdown %>
+      <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <%= b.name %> <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+            <% b.dropdown_items.each do |d| %>
+                <li><a href="<%= d.link %>"><%= d.name %></a></li>
+            <% end %>
+            </ul>
+        </li>
+    <% else %>
+        <li class="active">&nbsp;<span><strong><%= b.name %></strong></span></li>
+    <% end %>
+  <% end %>
+</ol>
+
+<% if @doc.metadata %>
+
+  <% if @doc.metadata.tags %>
+    <div class="doc-tags"><i class="fa fa-tags"></i>
+      <% @doc.metadata.tags.each do |t| %>
+        <button class="btn btn-default btn-xxs" type="button"><%= t %></button>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<% if @doc.markdown_render %>  
+  <%= @doc.markdown_render.html_safe %>
+<% else %>
+  <h1><%= @doc.nav_title %></h1>
+  <br />
+  <% @doc.child_links.each do |c| %>
+    <a href="<%= c.link %>"><h3 style="margin:0;padding:0;webkit-margin-after: 0 !important;line-height: 1"><%= c.name %></h3></a>
+    <% if c.takeaway? %><div class="small"><%= c.takeaway %></div><br /><% end %>
+    <br />
+  <% end %>
+<% end %>
+
+<br />
+<hr />
+<table class="table table-condensed table-bordered small">
+  <tr>
+    <td>Level</td>
+    <td><%= @doc.cbd.subtype %></td>
+  </tr>
+  <tr>
+    <td>Type</td>
+    <td><%= @doc.cbd.nav_type %></td>
+  </tr>
+  <tr>
+    <td>Source</td>
+    <td><%= @doc_key %></td>
+  </tr>
+  <% if @doc.cbd.updated_at? %>
+    <tr>
+      <td>Updated</td>
+      <td>
+        <%= time_ago_in_words(DateTime.strptime(@doc.cbd.updated_at.to_s,'%s')) %> ago<br />
+        <%= DateTime.strptime(@doc.cbd.updated_at.to_s,'%s') %>
+      </td>
+    </tr>
+  <% end %>
+</table>
+
+<% content_for :left_nav do %>  
+  <%= nav_hierarchy %>
+<% end %>

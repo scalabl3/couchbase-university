@@ -1,0 +1,29 @@
+<% content_for :css do
+  stylesheet_link_tag 'qa'
+end %>
+
+<h3>Q:<%= @q.subject %></h3>
+<h5><%= @q.q %></h5>
+
+<h3><%= 1 %>&nbsp;Answer</h3>
+<div id="answers"><div>
+
+<br />
+<br />
+<hr class="style-eight"/>
+<div id="new-answer">  
+  <h3>Add Answer</h3>
+  <div id="qa-answer-box-buttons" class="collapse navbar-collapse" >
+    <ul class="nav navbar-nav compose-buttons">
+      <li class="hidden-xs"><a><i class="fa fa-bold"></i></a></li>      
+      <li class="hidden-xs"><a><i class="fa fa-italic"></i></a></li>
+        <li class="separator"><i class="fa fa-ellipsis-v"></i></li>      
+      <li class="hidden-xs"><a><i class="fa fa-code"></i></a></li>
+      <li class="hidden-xs"><a><i class="fa fa-anchor"></i></a></li>
+    </ul>
+  </div>
+  <div>
+    <textarea id="answer-input" name="answer-input" class="input-sm"></textarea>
+  </div>
+  <div class="answer-preview"></div>
+</div>

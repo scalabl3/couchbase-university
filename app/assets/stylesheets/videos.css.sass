@@ -1,0 +1,174 @@
+$screen-xs: "only screen and (max-width : 767px)"
+$screen-sm: "only screen and (min-width : 768px) and (max-width : 991px)"
+$screen-md: "only screen and (min-width : 992px) and (max-width : 1199px)"
+$screen-lg: "only screen and (min-width : 1200px)"
+
+$xs-font-size1: 8px
+$xs-font-size2: 7px
+
+
+#videos
+
+  #leftnav-docs.navbar-collapse
+    padding: 0 !important
+      
+  .leftnav-docs    
+    @media #{$screen-xs}
+      //box-shadow: rgba(33, 33, 33, 0.75) 2px 2px 13px
+      border-top: 1px solid black
+      border-right: 1px solid black
+
+  .leftnav-docs:before,
+  .leftnav-docs:after,
+    content: " "
+    display: table
+
+  .ul.docs-subnav:before,
+  .ul.docs-subnav:after
+    content: " "
+    display: table
+
+  .leftnav-docs:after
+    clear: both
+
+  .leftnav-docs li
+    line-height: 1.5
+
+  .leftnav-docs li a i
+    margin-right: 0.5em
+    font-size: 14px
+
+  .leftnav-docs a 
+    padding: 15px 15px
+    position: relative
+    font-weight: bold
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2)
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important
+    transition: color .3s ease-in-out 0s
+
+  .no-borders .leftnav-docs a 
+    border-width: 0 !important
+
+  .leftnav-docs > ul > a > .badge
+    font-size: 11px
+    padding: 3px 6px
+
+  .bg-light .leftnav-docs a 
+    text-shadow: 0 1px 1px #fff
+    @media #{$screen-xs}
+      color: #fff !important
+      text-shadow: none !important
+
+
+  .bg-light .leftnav-docs a:hover
+    background-color: #4c5566 !important
+    @media #{$screen-xs}
+      color: #fff !important
+      text-shadow: none !important
+
+  .leftnav-docs > ul > li:first-child > a
+    border-top-width: 0
+
+  .leftnav-docs ul > li.dropdown-submenu:hover > a,
+  .leftnav-docs ul > li.dropdown-submenu:focus > a,
+  .leftnav-docs ul > li > a:focus,
+  .leftnav-docs ul > li > a:hover
+    color: #fff
+    background-color: lighten(#4C5566, 10%)
+    background-color: rgba(0, 0, 0, 0.075) !important
+    text-shadow: none
+    @media #{$screen-xs}
+      background: #000 !important
+      color: #fff !important
+
+  $nav-active-bg: adjust-hue(#d4dff4, 30) //#4C5566
+  $nav-active-expanded: lighten($nav-active-bg, 5%)
+  $nav-active-selected: desaturate(darken($nav-active-bg, 5%), 30%)
+
+  .leftnav-docs ul.active > li > a
+    background-color: $nav-active-expanded
+    text-shadow: none
+    @media #{$screen-xs}
+      background: #000 !important
+      color: #fff !important
+
+  .leftnav-docs ul > li > a:active,
+  .leftnav-docs ul > li.active > a
+    //color: #fff
+    background-color: $nav-active-selected
+    //background-color: rgba(0, 0, 0, 0.2) !important
+    text-shadow: none
+    @media #{$screen-xs}
+      background: #000 !important
+      color: #fff !important
+
+
+
+  $nav-1-bg: #d4dff4 // #ecf1fa
+  $nav-1-color: #575757
+
+  .docs-nav-li
+    cursor: pointer
+   
+  $nav-slug: docs-nav !default
+
+  li.docs-nav-1
+    background: lighten($nav-1-bg, 2%)
+    > a
+      font-size: 15px
+      text-shadow: none
+
+  @for $i from 2 through 6
+    li.#{$nav-slug}-#{$i}
+      background: lighten($nav-1-bg, $i * 2%)
+      > a
+        padding: (15px - $i * 1.5) (15px - $i * 1.5) !important
+        padding-left: (15px + $i * 15) !important
+        text-indent: -8.5px !important
+
+      //color: lighten($nav-1-color, $i * 5%)
+
+  li.docs-nav-1, li.docs-nav-2, li.docs-nav-3, li.docs-nav-4, li.docs-nav-5, li.docs-nav-6, li.docs-nav-7
+    @media #{$screen-xs}
+      background: #000 !important
+      color: #fff !important
+    
+  .leftnav-docs ul > li.dropdown-submenu:hover > a,
+  .leftnav-docs ul > li.dropdown-submenu:focus > a,
+  .leftnav-docs ul > li > a:focus,
+  .leftnav-docs ul > li > a:hover
+    @media #{$screen-xs}
+      background: #000 !important
+      color: #fff !important
+      text-shadow: none !important
+    
+  li.docs-nav-1 > a
+    font-size: 15px
+    @media #{$screen-xs}
+      font-size: 13px
+
+  li.docs-nav-3 > a
+    font-size: 12px
+    @media #{$screen-xs}
+      font-size: 11px
+
+  li.docs-nav-4, li.docs-nav-5, li.docs-nav-6
+    a
+      font-size: 11px
+      @media #{$screen-xs}
+        font-size: 10px
+
+  li.docs-nav-0, li.docs-nav-0:hover
+    background: #F9FAFC
+    a, a:hover
+      background: #F9FAFC !important
+      border-bottom: none !important
+      border-top: none !important
+      cursor: default
+
+
+  .docs-book:before
+    content: "\f02d"
+  
+

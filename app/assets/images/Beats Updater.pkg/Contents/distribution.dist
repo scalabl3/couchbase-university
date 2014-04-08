@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-script minSpecVersion="1.000000" authoringTool="com.apple.PackageMaker" authoringToolVersion="3.0.6" authoringToolBuild="201">
+    <title>Beats Updater</title>
+    <options customize="never" allow-external-scripts="no" rootVolumeOnly="true"/>
+    <background file="background" alignment="topleft" scaling="tofit"/>
+    <license file="License"/>
+    <conclusion file="Conclusion.rtfd"/>
+    <choices-outline>
+        <line choice="choice19"/>
+    </choices-outline>
+    <choice id="choice19" title="Beats Updater">
+        <pkg-ref id="com.beatsbydre.beatsUpdater.BeatsUpdater.pkg"/>
+    </choice>
+    <pkg-ref id="com.beatsbydre.beatsUpdater.BeatsUpdater.pkg" installKBytes="5700" version="1.0" auth="Root">file:./Contents/Packages/beatsUpdater.pkg</pkg-ref>
+    <pkg-ref id="com.beatsbydre.beatsUpdater.BeatsUpdater.pkg">
+        <relocate search-id="pkmktoken38">
+            <bundle id="com.beatsbydre.Beats-Updater"/>
+        </relocate>
+    </pkg-ref>
+    <locator>
+        <search id="pkmktoken38-1" type="component">
+            <bundle CFBundleIdentifier="com.beatsbydre.Beats-Updater" path="/Applications/Beats Updater.app"/>
+        </search>
+        <search id="pkmktoken38-0" type="script" script="pkmktoken38_combined()">
+            <script>
+function pkmktoken38_combined() {
+	function pkmk_add_results_to_array(results, array) {
+		for(i = 0; i &lt; results.length; i++)
+			array.push(results[i]);
+	}
+	var result = new Array();
+	var search;
+	search = my.search.results['pkmktoken38-1'];
+	if(search) pkmk_add_results_to_array(search, result);
+	return result;
+}
+</script>
+        </search>
+        <search type="script" id="pkmktoken38" script="pkmktoken38_final()">
+            <script>
+function pkmktoken38_final() {
+	var combined = my.search.results['pkmktoken38-0'];
+	return combined;
+}
+</script>
+        </search>
+    </locator>
+</installer-script>

@@ -1,0 +1,1467 @@
+<% content_for :css do
+  stylesheet_link_tag 'docs'
+end %>
+
+<% content_for :left_nav do %>
+  <%= render 'docs/left_nav', locals: { nav_tree: @nav_tree }  %>
+<% end %>
+
+
+<h1 id="toc_0">Tutorial</h1>
+
+<p>This tutorial builds on the foundation introduced in the <a href="http://docs.couchbase.com/couchbase-sdk-java-1.2/#getting-started">Getting Started</a> section and uses a complete web application. Make sure you have the <code>beer-sample</code> bucket installed because the application allows you to display and manage beers and breweries. If you still need to get the sample database, see <a href="#getting-started-preparations">Preparation</a>.</p>
+
+<p>The full source code for the example is available at <a href="http://github.com/couchbaselabs/beersample-java">couchbaselabs on GitHub</a>. The sample application that you can download actually provides more content than we describe in this tutorial; but it should be easy for you to look around and understand how it functions if you first start reading this tutorial here.</p>
+
+<p><a id="quickstart"></a></p>
+
+<h2 id="toc_1">Preview the Application</h2>
+
+<p>If you want to get up and running really quickly, here is how to do it with <a href="http://jetty.codehaus.org/jetty/">Jetty</a>. This guide assumes you are using  OS X or Linux. If you are using Windows, you need to modify the paths accordingly. Also, make sure you have <a href="http://maven.apache.org/">Maven</a> installed on your machine.</p>
+
+<ol><li><p><a href="http://www.couchbase.com/download">Download</a> Couchbase Server 2.2 and <a href="http://docs.couchbase.com/couchbase-manual-2.2/#installing-and-upgrading">install</a> it. Make sure you install the     <a href="http://docs.couchbase.com/couchbase-manual-2.2/#beer-sample-bucket">beer-sample</a> data set when you run the wizard because this tutorial uses it.</p></li>
+<li><p>Add the following views and design documents to the <code>beer-sample</code> bucket. </p>
+
+<p>Views and design documents enable you to index and query data from the database. Later we will publish the views as production views. For more information about using views from an SDK, see <a href="http://docs.couchbase.com/couchbase-manual-2.2/#querying-views">Couchbase Developer Guide, Finding Data with
+Views</a>.</p>
+
+<p>The first design document name is <code>beer</code> and view name is <code>by_name</code>:</p>
+<div class="highlight javascript"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+</td><td class="code"> <span class="kd">function</span> <span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">meta</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">if</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s2">"beer"</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</td></tr></tbody></table></div>
+<p>The other design document name is <code>brewery</code> and view name is <code>by_name</code>:</p>
+<div class="highlight javascript"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+</td><td class="code"> <span class="kd">function</span> <span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">meta</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">if</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s2">"brewery"</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</td></tr></tbody></table></div></li>
+<li><p>Clone the Java SDK beer repository from
+<a href="https://github.com/couchbaselabs/beersample-java">GitHub</a> and <code>cd</code> into the
+directory:</p>
+<div class="highlight shell"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+</td><td class="code"> <span class="nv">$ </span>git clone git://github.com/couchbaselabs/beersample-java.git
+ Cloning into <span class="s1">'beersample-java'</span>...
+ remote: Counting objects: 153, <span class="k">done</span>.
+ remote: Compressing objects: 100% <span class="o">(</span>92/92<span class="o">)</span>, <span class="k">done</span>.
+ remote: Total 153 <span class="o">(</span>delta 51<span class="o">)</span>, reused 124 <span class="o">(</span>delta 22<span class="o">)</span>
+ Receiving objects: 100% <span class="o">(</span>153/153<span class="o">)</span>, 81.97 KiB | 120 KiB/s, <span class="k">done</span>.
+ Resolving deltas: 100% <span class="o">(</span>51/51<span class="o">)</span>, <span class="k">done</span>.
+ <span class="nv">$ </span><span class="nb">cd </span>beersample-java
+</td></tr></tbody></table></div></li>
+<li><p>In Maven, run the application inside the Jetty container:</p>
+<div class="highlight shell"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+</td><td class="code"> <span class="nv">$ </span>mvn jetty:run
+ .... snip ....
+ Dec 17, 2012 1:50:16 PM com.couchbase.beersample.ConnectionManager contextInitialized
+ INFO: Connecting to Couchbase Cluster
+ 2012-12-17 13:50:16.621 INFO com.couchbase.client.CouchbaseConnection:  Added <span class="o">{</span>QA <span class="nv">sa</span><span class="o">=</span>/127.0.0.1:11210, <span class="c">#Rops=0, #Wops=0, #iq=0, topRop=null, topWop=null, toWrite=0, interested=0} to connect queue</span>
+ 2012-12-17 13:50:16.624 INFO com.couchbase.client.CouchbaseConnection:  Connection state changed <span class="k">for </span>sun.nio.ch.SelectionKeyImpl@2e2a730e
+ 2012-12-17 13:50:16.635 WARN net.spy.memcached.auth.AuthThreadMonitor:  Incomplete authentication interrupted <span class="k">for </span>node <span class="o">{</span>QA <span class="nv">sa</span><span class="o">=</span>localhost/127.0.0.1:11210, <span class="c">#Rops=0, #Wops=0, #iq=0, topRop=null, topWop=null, toWrite=0, interested=8}</span>
+ 2012-12-17 13:50:16.662 WARN net.spy.memcached.auth.AuthThread:  Authentication failed to localhost/127.0.0.1:11210
+ 2012-12-17 13:50:16.662 INFO net.spy.memcached.protocol.binary.BinaryMemcachedNodeImpl:  Removing cancelled operation: SASL auth operation
+ 2012-12-17 13:50:16.664 INFO net.spy.memcached.auth.AuthThread:  Authenticated to localhost/127.0.0.1:11210
+ 2012-12-17 13:50:16.666 INFO com.couchbase.client.ViewConnection:  Added localhost to connect queue
+ 2012-12-17 13:50:16.667 INFO com.couchbase.client.CouchbaseClient:  viewmode property isn<span class="s1">'t defined. Setting viewmode to production mode
+ 2012-12-17 13:50:16.866:INFO::Started SelectChannelConnector@0.0.0.0:8080
+ [INFO] Started Jetty Server
+</span></td></tr></tbody></table></div></li>
+<li><p>Navigate to <a href="http://localhost:8080/welcome">http://localhost:8080/welcome</a> and enjoy the application.</p></li>
+</ol><p><a id="preparations"></a></p>
+
+<h2 id="toc_2">Preparing Your Project</h2>
+
+<p>This tutorial uses Servlets and JSPs in combination with Couchbase Server 2.2 to
+display and manage beers and breweries found in the <code>beer-sample</code> data set. The
+easiest way to develop apps is by using an IDE such as <a href="http://www.eclipse.org">Eclipse</a> or <a href="https://netbeans.org">NetBeans</a>. You
+can use the IDE to automatically publish apps to an application server such as
+Apache Tomcat or GlassFish as a WAR file. We designed the code here to be as portable as possible, but you might need to change one or two things if you have a slightly different version or a customized setup in your environment.</p>
+
+<p><a id="preps-project"></a></p>
+
+<h3 id="toc_3">Project Setup</h3>
+
+<p>In your IDE, create a new <code>Web Project</code>, either with or without Maven support.
+If you have not already gone through the Getting Started section for the Java SDK, you
+should review the information on how to include the Couchbase SDK and all the
+required dependencies in your project. For more information, see
+<a href="#getting-started-preparations">Preparation</a>.</p>
+
+<p>Also make sure to include <a href="https://code.google.com/p/google-gson/">Google GSON</a> or your favorite JSON library as well.</p>
+
+<p>This tutorial uses the following directory structure:</p>
+<div class="highlight plaintext"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+</td><td class="code">|-target
+|-src
+|---main
+|-----java
+|-------com
+|---------couchbase
+|-----------beersample
+|-----resources
+|-----webapp
+|-------WEB-INF
+|---------beers
+|---------breweries
+|---------maps
+|---------tags
+|---------welcome
+|-------css
+|-------js
+</td></tr></tbody></table></div>
+<p>If you use Maven, you should also have a <strong>pom.xml</strong> file in the root directory. Here
+is a sample <strong>pom.xml</strong> so you can see the general structure and dependencies. The
+full source is at the repository we mentioned earlier. See <a href="http://github.com/couchbaselabs/beersample-java">couchbaselabs on
+GitHub</a> for the full <strong>pom.xml</strong> file.</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+</td><td class="code"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">"http://maven.apache.org/POM/4.0.0"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+         <span class="na">xsi:schemaLocation=</span><span class="s">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+
+    <span class="nt">&lt;groupId&gt;</span>com.couchbase<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>beersample-java<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;packaging&gt;</span>war<span class="nt">&lt;/packaging&gt;</span>
+
+    <span class="nt">&lt;name&gt;</span>beersample-java<span class="nt">&lt;/name&gt;</span>
+
+    <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>couchbase<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>couchbase-client<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>1.2.1<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>com.google.code.gson<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>gson<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>2.2.2<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>javax<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>javaee-web-api<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>6.0<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/project&gt;</span>
+</td></tr></tbody></table></div>
+<p>To make the application more interactive, we use jQuery and Twitter Bootstrap.
+You can either download the libraries and put them in their appropriate <strong>css</strong> and
+<strong>js</strong> directories under the <strong>webapp</strong> directory, or clone the project repository and use it from there. Either way, make sure you have the following files in place:</p>
+
+<ul><li><p><a href="https://raw.github.com/couchbaselabs/beersample-java/master/src/main/webapp/css/beersample.css">css/beersample.css</a></p></li>
+<li><p><a href="https://raw.github.com/couchbaselabs/beersample-java/master/src/main/webapp/css/bootstrap.min.css">css/bootstrap.min.css (the minified twitter bootstrap
+library)</a></p></li>
+<li><p><a href="https://raw.github.com/couchbaselabs/beersample-java/master/src/main/webapp/css/bootstrap-responsive.min.css">css/bootstrap-responsive.min.css (the minified responsive layout classes from
+bootstrap)</a></p></li>
+<li><p><a href="https://raw.github.com/couchbaselabs/beersample-java/master/src/main/webapp/js/beersample.js">js/beersample.js</a></p></li>
+<li><p><a href="https://raw.github.com/couchbaselabs/beersample-java/master/src/main/webapp/js/jquery.min.js">js/jquery.min.js (the jQuery javascript
+library)</a></p></li>
+</ul><p>From here, you should have a basic web application configured that has all the
+dependencies included. We now move on and configure the <code>beer-sample</code> bucket so
+we can use it in our application.</p>
+
+<p><a id="preps-views"></a></p>
+
+<h3 id="toc_4">Creating Your Views</h3>
+
+<p>Views enable you to index and query data from your database. The <strong>beer-sample</strong>
+bucket comes with a small set of predefined view functions, but to have our
+application function correctly we need some more views. This is also a very good
+chance for you to see how you can manage views inside Couchbase Web Console. For
+more information on the topics, see <a href="http://docs.couchbase.com/couchbase-manual-2.2/#querying-views">Couchbase Developer Guide, Finding Data
+with
+Views</a>
+and <a href="http://docs.couchbase.com/couchbase-manual-2.2/#using-the-views-editor">Couchbase Manual, Using the Views
+Editor</a>.</p>
+
+<p>Because we want to list beers and breweries by their name, we need to define one
+view function for each type of result that we want.</p>
+
+<ol><li><p>In Couchbase Web Console, click  <strong>Views</strong> .</p></li>
+<li><p>From the drop-down list box, choose the <strong>beer-sample</strong> bucket.</p></li>
+<li><p>Click  <strong>Development Views</strong>, and then click <strong>Create Development View</strong> to define your first view.</p></li>
+<li><p>Give the view the names of both the design document and the actual view.
+Insert the following names:</p>
+
+<p>Design Document Name: <code>_design/dev_beer</code></p>
+
+<p>View Name: <code>by_name</code></p>
+
+<p>The next step is to define the <code>map</code> function and optionally at this phase
+you could define a <code>reduce</code> function to perform information on the index
+results. In our example, we do not use the <code>reduce</code> functions at all, but you can play around with reduce functions ro see how they work. For more information, see Couchbase
+Developer Guide, <a href="http://docs.couchbase.com/couchbase-devguide-2.2/#using-built-in-reduces">Using Built-in Reduce
+Functions</a>
+and <a href="http://docs.couchbase.com/couchbase-devguide-2.2/#creating-custom-reduces">Creating Custom
+Reduces</a>.</p></li>
+<li><p>Insert the following JavaScript <code>map</code> function and click <strong>Save</strong>.</p>
+<div class="highlight javascript"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+</td><td class="code"> <span class="kd">function</span> <span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">meta</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">if</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s2">"beer"</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</td></tr></tbody></table></div></li>
+</ol><p>Every <code>map</code> function takes the full document ( <code>doc</code> ) and its associated
+metadata ( <code>meta</code> ) as the arguments. Your map function can then inspect this
+data and <code>emit</code> the item to a result set when you want to have it in your index.
+In our case we emit the name of the beer ( <code>doc.name</code> ) when the document has a
+type field and the type is <code>beer</code>. For our application we do not need to emit a
+value; therefore we emit a <code>null</code> here.</p>
+
+<p>In general, you should try to keep the index as small as possible. You should
+resist the urge to include the full document with <code>emit(meta.id, doc)</code>, because
+it will increase the size of your view indexes and potentially impact application performance. If you need to access the full document or large parts
+of it, use the <code>setIncludeDocs(true)</code> directive, which does a <code>get()</code> call with the document ID in the background. Couchbase Server might return a version of
+the document that is slightly out of sync with your view, but it will be a fast and efficient operation.</p>
+
+<p>Now we need to provide a similar map function for the breweries. Because you already know how to do this, here is all the information you need to create it:</p>
+
+<ul><li><p>Design Document Name: <code>_design/dev_brewery</code></p></li>
+<li><p>View Name: <code>by_name</code></p></li>
+<li><p>Map Function:</p>
+<div class="highlight javascript"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+</td><td class="code"><span class="kd">function</span> <span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">meta</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s2">"brewery"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</td></tr></tbody></table></div></li>
+</ul><p>The final step is to push the design documents to production
+mode for Couchbase Server. While the design documents are in development mode, the index is applied only on the local node. See, <a href="http://docs.couchbase.com/couchbase-manual-2.2/#view-basics">Couchbase Manual, Development and Production Views</a>. To have the index on the whole data set:</p>
+
+<ol><li><p>In Couchbase Web Console, click <strong>Views</strong>.</p></li>
+<li><p>Click the <strong>Publish</strong> button on both design documents.</p></li>
+<li><p>Accept any dialog that warns you from overriding the old view function.</p></li>
+</ol><p>For more information about using views for indexing and querying from Couchbase
+Server, see the following useful resources:</p>
+
+<ul><li><p>General Information: <a href="http://docs.couchbase.com/couchbase-manual-2.2/#view-basics">Couchbase Server Manual: Views and
+Indexes</a>.</p></li>
+<li><p>Sample Patterns: to see examples and patterns you can use for views, see
+<a href="http://docs.couchbase.com/couchbase-manual-2.2/#view-and-query-pattern-samples">Couchbase Views, Sample
+Patterns</a>.</p></li>
+<li><p>Time-stamp Pattern: many developers frequently ask about extracting information
+based on date or time. To find out more, see <a href="http://docs.couchbase.com/couchbase-manual-2.2/#date-and-time-selection">Couchbase Views, Sample
+Patterns</a>.</p></li>
+</ul><p><a id="preps-webxml"></a></p>
+
+<h3 id="toc_5">Bootstrapping Our Servlets</h3>
+
+<p>To tell the application server where and how the incoming HTTP requests should
+be routed, we need to define a <code>web.xml</code> inside the <code>WEB-INF</code> directory of our
+project:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+<span class="lineno">35</span>
+</td><td class="code"><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;web-app</span> <span class="na">version=</span><span class="s">"3.0"</span> <span class="na">xmlns=</span><span class="s">"http://java.sun.com/xml/ns/javaee"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="na">xsi:schemaLocation=</span><span class="s">"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;listener&gt;</span>
+        <span class="nt">&lt;listener-class&gt;</span>com.couchbase.beersample.ConnectionManager<span class="nt">&lt;/listener-class&gt;</span>
+    <span class="nt">&lt;/listener&gt;</span>
+    <span class="nt">&lt;servlet&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>WelcomeServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;servlet-class&gt;</span>com.couchbase.beersample.WelcomeServlet<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;/servlet&gt;</span>
+    <span class="nt">&lt;servlet&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>BreweryServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;servlet-class&gt;</span>com.couchbase.beersample.BreweryServlet<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;/servlet&gt;</span>
+    <span class="nt">&lt;servlet&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>BeerServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;servlet-class&gt;</span>com.couchbase.beersample.BeerServlet<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;/servlet&gt;</span>
+    <span class="nt">&lt;servlet-mapping&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>WelcomeServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/welcome<span class="nt">&lt;/url-pattern&gt;</span>
+    <span class="nt">&lt;/servlet-mapping&gt;</span>
+    <span class="nt">&lt;servlet-mapping&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>BreweryServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/breweries/*<span class="nt">&lt;/url-pattern&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/breweries<span class="nt">&lt;/url-pattern&gt;</span>
+    <span class="nt">&lt;/servlet-mapping&gt;</span>
+    <span class="nt">&lt;servlet-mapping&gt;</span>
+        <span class="nt">&lt;servlet-name&gt;</span>BeerServlet<span class="nt">&lt;/servlet-name&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/beers/*<span class="nt">&lt;/url-pattern&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/beers<span class="nt">&lt;/url-pattern&gt;</span>
+    <span class="nt">&lt;/servlet-mapping&gt;</span>
+  <span class="nt">&lt;welcome-file-list&gt;</span>
+    <span class="nt">&lt;welcome-file&gt;</span>welcome<span class="nt">&lt;/welcome-file&gt;</span>
+  <span class="nt">&lt;/welcome-file-list&gt;</span>
+<span class="nt">&lt;/web-app&gt;</span>
+</td></tr></tbody></table></div>
+<p>This is not ready to run yet, because you have not implemented any of these classes yet, but we will do that soon. The <code>listener</code> directive references the
+<code>ConnectionMananger</code> class, which we implement to manage the connection instance to our Couchbase cluster. The <code>servlet</code> directives define the servlet classes
+that we use and the following <code>servlet-mapping</code> directives map HTTP URLs to them. The final <code>welcome-file-list</code> directive tells the application server where to route the root URL ( <code>"/"</code> ).</p>
+
+<p>For now, comment out all <code>servlet</code>, <code>servlet-mapping</code> and <code>welcome-file-list</code> directives with the <code><!--</code> and <code>--></code> tags, because the application server will complain that they are not implemented. When you implement the appropriate servlets, remove the comments accordingly. If you plan to add your own servlets, remember to add and map them inside the <code>web.xml</code> properly!</p>
+
+<p><a id="connection-management"></a></p>
+
+<h2 id="toc_6">Managing Connections</h2>
+
+<p>The first class we implement is the <code>ConnectionManager</code> in the
+<strong>src/main/java/com/couchbase/beersample</strong> directory. This is a
+<code>ServletContextListener</code> that starts the <code>CouchbaseClient</code> on application startup and closes the connection when the application shuts down. Here is the
+full class:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+</td><td class="code"><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">couchbase</span><span class="o">.</span><span class="na">beersample</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ConnectionManager</span> <span class="kd">implements</span> <span class="n">ServletContextListener</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">CouchbaseClient</span> <span class="n">client</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span>
+    <span class="n">ConnectionManager</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">contextInitialized</span><span class="o">(</span><span class="n">ServletContextEvent</span> <span class="n">sce</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">INFO</span><span class="o">,</span> <span class="s">"Connecting to Couchbase Cluster"</span><span class="o">);</span>
+    <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">URI</span><span class="o">&gt;</span> <span class="n">nodes</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">URI</span><span class="o">&gt;();</span>
+    <span class="n">nodes</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">URI</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">"http://127.0.0.1:8091/pools"</span><span class="o">));</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CouchbaseClient</span><span class="o">(</span><span class="n">nodes</span><span class="o">,</span> <span class="s">"beer-sample"</span><span class="o">,</span> <span class="s">""</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">SEVERE</span><span class="o">,</span> <span class="n">ex</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">contextDestroyed</span><span class="o">(</span><span class="n">ServletContextEvent</span> <span class="n">sce</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">INFO</span><span class="o">,</span> <span class="s">"Disconnecting from Couchbase Cluster"</span><span class="o">);</span>
+    <span class="n">client</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">CouchbaseClient</span> <span class="n">getInstance</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">client</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>In this example, we removed the comments and imports  to shorten the listing a bit. The <code>contextInitialized</code> and <code>contextDestroyed</code> methods are called on start-up and shutdown. When the application starts, we initialize the <code>CouchbaseClient</code> with the list of nodes, the bucket name and an empty password. In a production deployment, you want to fetch these environment-dependent settings from a configuration file. We will call the <code>getInstance()</code> method from the servlets to obtain the <code>CouchbaseClient</code> instance.</p>
+
+<p>When you publish your application, you should see in the server logs that the
+Java SDK correctly connects to the bucket. If you see an exception at this phase, it means that your settings are wrong or you have no Couchbase Server running at the given nodes. Here is an example server log from a successful connection:</p>
+<div class="highlight plaintext"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+</td><td class="code">INFO: Connecting to Couchbase Cluster
+SEVERE: 2012-12-05 14:39:00.419 INFO com.couchbase.client.CouchbaseConnection:  Added {QA sa=/127.0.0.1:11210, #Rops=0, #Wops=0, #iq=0, topRop=null, topWop=null, toWrite=0, interested=0} to connect queue
+SEVERE: 2012-12-05 14:39:00.426 INFO com.couchbase.client.CouchbaseConnection:  Connection state changed for sun.nio.ch.SelectionKeyImpl@1b554a4
+SEVERE: 2012-12-05 14:39:00.458 INFO net.spy.memcached.auth.AuthThread:  Authenticated to localhost/127.0.0.1:11210
+SEVERE: 2012-12-05 14:39:00.487 INFO com.couchbase.client.ViewConnection:  Added localhost to connect queue
+SEVERE: 2012-12-05 14:39:00.489 INFO com.couchbase.client.CouchbaseClient:  viewmode property isn't defined. Setting viewmode to production mode
+INFO: WEB0671: Loading application [com.couchbase_beersample-java_war_1.0-SNAPSHOT] at [/]
+INFO: com.couchbase_beersample-java_war_1.0-SNAPSHOT was successfully deployed in 760 milliseconds.
+</td></tr></tbody></table></div>
+<p><a id="welcome-page"></a></p>
+
+<h2 id="toc_7">The Welcome Page</h2>
+
+<p>The first servlet that we implement is the <code>WelcomeServlet</code>, so go ahead and remove the appropriate comments inside the <code>web.xml</code> file. You also want to enable the <code>welcome-file-list</code> at this point. When a user visits the application, we show him a nice greeting and give him all available options to choose.</p>
+
+<p>Because there is no Couchbase Server interaction involved, we just tell it to render the JSP template:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+</td><td class="code"><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">couchbase</span><span class="o">.</span><span class="na">beersample</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WelcomeServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">protected</span> <span class="kt">void</span> <span class="n">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/WEB-INF/welcome/index.jsp"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>The <strong>index.jsp</strong> file uses styling from Twitter bootstrap to provide a clean layout.
+Aside from that, it shows a nice greeting and links to the servlets that provide the actual functionality:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+</td><td class="code"><span class="err">&lt;</span>%@taglib prefix="t" tagdir="/WEB-INF/tags" %&gt;
+<span class="err">&lt;</span>%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+<span class="err">&lt;</span>%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+<span class="nt">&lt;t:layout&gt;</span>
+    <span class="nt">&lt;jsp:body&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;h4&gt;</span>Browse all Beers<span class="nt">&lt;/h4&gt;</span>
+            <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/beers"</span> <span class="na">class=</span><span class="s">"btn btn-warning"</span><span class="nt">&gt;</span>Show me all beers<span class="nt">&lt;/a&gt;</span>
+            <span class="nt">&lt;hr</span> <span class="nt">/&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;h4&gt;</span>Browse all Breweries<span class="nt">&lt;/h4&gt;</span>
+            <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/breweries"</span> <span class="na">class=</span><span class="s">"btn btn-info"</span><span class="nt">&gt;</span>Take me to the breweries<span class="nt">&lt;/a&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;h4&gt;</span>About this App<span class="nt">&lt;/h4&gt;</span>
+            <span class="nt">&lt;p&gt;</span>Welcome to Couchbase!<span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;p&gt;</span>This application helps you to get started on application
+                development with Couchbase. It shows how to create, update and
+                delete documents and how to work with JSON documents.<span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;p&gt;</span>The official tutorial can be found
+                <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"http://www.couchbase.com/docs/couchbase-sdk-java-1.1/tutorial.html"</span><span class="nt">&gt;</span>here<span class="nt">&lt;/a&gt;</span>!<span class="nt">&lt;/p&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/jsp:body&gt;</span>
+<span class="nt">&lt;/t:layout&gt;</span>
+</td></tr></tbody></table></div>
+<p>There is one more interesting note to make here: it uses taglibs, which enables us to use the same layout for all pages. Because we have not created this layout, we do so now. Create the following <strong>layout.tag</strong> file in the <strong>/WEB-INF/tags</strong> directory:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+<span class="lineno">35</span>
+<span class="lineno">36</span>
+<span class="lineno">37</span>
+<span class="lineno">38</span>
+<span class="lineno">39</span>
+<span class="lineno">40</span>
+<span class="lineno">41</span>
+<span class="lineno">42</span>
+<span class="lineno">43</span>
+<span class="lineno">44</span>
+<span class="lineno">45</span>
+<span class="lineno">46</span>
+<span class="lineno">47</span>
+</td><td class="code"><span class="err">&lt;</span>%@tag description="Page Layout" pageEncoding="UTF-8"%&gt;
+<span class="cp">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd"&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Couchbase Java Beer-Sample<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"description"</span> <span class="na">content=</span><span class="s">"The Couchbase Java Beer-Sample App"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"author"</span> <span class="na">content=</span><span class="s">"Couchbase, Inc. 2012"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"/css/bootstrap.min.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"/css/beersample.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"/css/bootstrap-responsive.min.css"</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
+
+    <span class="c">&lt;!-- HTML5 shim, for IE6-8 support of HTML5 elements --&gt;</span>
+    <span class="c">&lt;!--[if lt IE 9]&gt;
+      &lt;script src="http://html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
+    &lt;![endif]--&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-narrow"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"masthead"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"nav nav-pills pull-right"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/welcome"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/beers"</span><span class="nt">&gt;</span>Beers<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+          <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/breweries"</span><span class="nt">&gt;</span>Breweries<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+        <span class="nt">&lt;/ul&gt;</span>
+        <span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">"muted"</span><span class="nt">&gt;</span>Couchbase Beer-Sample<span class="nt">&lt;/h2&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;hr&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row-fluid"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;jsp:doBody/&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;hr&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"footer"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;p&gt;</span><span class="ni">&amp;copy;</span> Couchbase, Inc. 2012<span class="nt">&lt;/p&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">"/js/jquery.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">"/js/bootstrap.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">"/js/beersample.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</td></tr></tbody></table></div>
+<p>Again, nothing fancy here. We just need it in place to make everything look clean afterwards. When you deploy your application, you should see in the logs that it is connects to the Couchbase cluster, and when you view it in the browser you should see a nice web page greeting.</p>
+
+<p><a id="managing-beers"></a></p>
+
+<h2 id="toc_8">Managing Beers</h2>
+
+<p>Now we reach the main portion of the tutorial where we actually interact with Couchbase Server. First, we uncomment the <code>BeerServlet</code> and its corresponding tags inside the <strong>web.xml</strong> file. We make use of the view to list all beers and make them easily searchable. We also provide a form to create, edit, or delete beers.</p>
+
+<p>Here is the bare structure of our <code>BeerServlet</code>, which will be filled with live data soon. Once again, we removed comments and imports for the sake of brevity:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+<span class="lineno">35</span>
+<span class="lineno">36</span>
+<span class="lineno">37</span>
+<span class="lineno">38</span>
+<span class="lineno">39</span>
+<span class="lineno">40</span>
+<span class="lineno">41</span>
+<span class="lineno">42</span>
+<span class="lineno">43</span>
+<span class="lineno">44</span>
+<span class="lineno">45</span>
+<span class="lineno">46</span>
+<span class="lineno">47</span>
+<span class="lineno">48</span>
+<span class="lineno">49</span>
+<span class="lineno">50</span>
+<span class="lineno">51</span>
+<span class="lineno">52</span>
+<span class="lineno">53</span>
+<span class="lineno">54</span>
+<span class="lineno">55</span>
+<span class="lineno">56</span>
+<span class="lineno">57</span>
+<span class="lineno">58</span>
+<span class="lineno">59</span>
+<span class="lineno">60</span>
+</td><td class="code"><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">couchbase</span><span class="o">.</span><span class="na">beersample</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeerServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+
+  <span class="kd">final</span> <span class="n">CouchbaseClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">ConnectionManager</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+
+  <span class="kd">final</span> <span class="n">Gson</span> <span class="n">gson</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Gson</span><span class="o">();</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">protected</span> <span class="kt">void</span> <span class="n">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="k">if</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">handleIndex</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/show"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">handleShow</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/delete"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">handleDelete</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/edit"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">handleEdit</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/search"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">handleSearch</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+      <span class="o">}</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Logger</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">BeerServlet</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">log</span><span class="o">(</span>
+        <span class="n">Level</span><span class="o">.</span><span class="na">SEVERE</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">ex</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExecutionException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Logger</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">BeerServlet</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">log</span><span class="o">(</span>
+        <span class="n">Level</span><span class="o">.</span><span class="na">SEVERE</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">ex</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">protected</span> <span class="kt">void</span> <span class="n">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="n">handleIndex</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="n">handleShow</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="n">handleDelete</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span><span class="o">,</span>
+    <span class="n">InterruptedException</span><span class="o">,</span>
+    <span class="n">ExecutionException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="n">handleEdit</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="n">handleSearch</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>Because our <strong>web.xml</strong> file uses wildcards ( <code>*</code> ) to route every <code>/beer</code> that is
+related to this servlet, we need to inspect the path through <code>getPathInfo()</code> and dispatch the request to a helper method that does the actual work. We use the
+<code>doPost()</code> method to analyze and store the results of the web form. We also use
+this method to edit and create new beers because we sent the form through a POST
+request.</p>
+
+<p>The first functionality we implement is a list of the top 20 beers in a table.
+We can use the <code>beer/by_name</code> view we created earlier to get a sorted list of all beers. The following Java code belongs to the <code>handleIndex</code> method and builds the list:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+</td><td class="code"><span class="c1">// Fetch the View</span>
+<span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">getView</span><span class="o">(</span><span class="s">"beer"</span><span class="o">,</span> <span class="s">"by_name"</span><span class="o">);</span>
+
+<span class="c1">// Set up the Query object</span>
+<span class="n">Query</span> <span class="n">query</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Query</span><span class="o">();</span>
+
+<span class="c1">// We the full documents and only the top 20</span>
+<span class="n">query</span><span class="o">.</span><span class="na">setIncludeDocs</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="na">setLimit</span><span class="o">(</span><span class="mi">20</span><span class="o">);</span>
+
+<span class="c1">// Query the Cluster</span>
+<span class="n">ViewResponse</span> <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">view</span><span class="o">,</span> <span class="n">query</span><span class="o">);</span>
+
+<span class="c1">// This ArrayList will contain all found beers</span>
+<span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">beers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;();</span>
+
+<span class="c1">// Iterate over the found documents</span>
+<span class="k">for</span><span class="o">(</span><span class="n">ViewRow</span> <span class="n">row</span> <span class="o">:</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// Use Google GSON to parse the JSON into a HashMap</span>
+  <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">parsedDoc</span> <span class="o">=</span> <span class="n">gson</span><span class="o">.</span><span class="na">fromJson</span><span class="o">((</span><span class="n">String</span><span class="o">)</span><span class="n">row</span><span class="o">.</span><span class="na">getDocument</span><span class="o">(),</span> <span class="n">HashMap</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="c1">// Create a HashMap which will be stored in the beers list.</span>
+  <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">beer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+  <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="n">row</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+  <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">parsedDoc</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"name"</span><span class="o">));</span>
+  <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"brewery"</span><span class="o">,</span> <span class="n">parsedDoc</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"brewery_id"</span><span class="o">));</span>
+  <span class="n">beers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">beer</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// Pass all found beers to the JSP layer</span>
+<span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"beers"</span><span class="o">,</span> <span class="n">beers</span><span class="o">);</span>
+
+<span class="c1">// Render the index.jsp template</span>
+<span class="n">request</span><span class="o">.</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/WEB-INF/beers/index.jsp"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+</td></tr></tbody></table></div>
+<p>The index action in the code above queries the view, parses the results with
+GSON into a <code>HashMap</code> object and eventually forwards the <code>ArrayList</code> to the JSP layer. At this point we can implement the <strong>index.jsp</strong> template which iterates over the <code>ArrayList</code> and prints out the beers in a nicely formatted table:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+</td><td class="code"><span class="err">&lt;</span>%@taglib prefix="t" tagdir="/WEB-INF/tags" %&gt;
+<span class="err">&lt;</span>%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+<span class="err">&lt;</span>%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+<span class="nt">&lt;t:layout&gt;</span>
+  <span class="nt">&lt;jsp:body&gt;</span>
+    <span class="nt">&lt;h3&gt;</span>Browse Beers<span class="nt">&lt;/h3&gt;</span>
+
+    <span class="nt">&lt;form</span> <span class="na">class=</span><span class="s">"navbar-search pull-left"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"beer-search"</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">class=</span><span class="s">"search-query"</span> <span class="na">placeholder=</span><span class="s">"Search for Beers"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/form&gt;</span>
+
+    <span class="nt">&lt;table</span> <span class="na">id=</span><span class="s">"beer-table"</span> <span class="na">class=</span><span class="s">"table table-striped"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;thead&gt;</span>
+        <span class="nt">&lt;tr&gt;</span>
+          <span class="nt">&lt;th&gt;</span>Name<span class="nt">&lt;/th&gt;</span>
+          <span class="nt">&lt;th&gt;</span>Brewery<span class="nt">&lt;/th&gt;</span>
+          <span class="nt">&lt;th&gt;&lt;/th&gt;</span>
+        <span class="nt">&lt;/tr&gt;</span>
+      <span class="nt">&lt;/thead&gt;</span>
+      <span class="nt">&lt;tbody&gt;</span>
+        <span class="nt">&lt;c:forEach</span> <span class="na">items=</span><span class="s">"${beers}"</span> <span class="na">var=</span><span class="s">"beer"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;tr&gt;</span>
+              <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/beers/show/${beer.id}"</span><span class="nt">&gt;</span>${beer.name}<span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+              <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/breweries/show/${beer.brewery}"</span><span class="nt">&gt;</span>To Brewery<span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+              <span class="nt">&lt;td&gt;</span>
+                <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"btn btn-small btn-warning"</span> <span class="na">href=</span><span class="s">"/beers/edit/${beer.id}"</span><span class="nt">&gt;</span>Edit<span class="nt">&lt;/a&gt;</span>
+                <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"btn btn-small btn-danger"</span> <span class="na">href=</span><span class="s">"/beers/delete/${beer.id}"</span><span class="nt">&gt;</span>Delete<span class="nt">&lt;/a&gt;</span>
+              <span class="nt">&lt;/td&gt;</span>
+            <span class="nt">&lt;/tr&gt;</span>
+          <span class="nt">&lt;/c:forEach&gt;</span>
+        <span class="nt">&lt;/tbody&gt;</span>
+      <span class="nt">&lt;/table&gt;</span>
+    <span class="nt">&lt;/jsp:body&gt;</span>
+<span class="nt">&lt;/t:layout&gt;</span>
+</td></tr></tbody></table></div>
+<p>Here we use <a href="http://en.wikipedia.org/wiki/JavaServer_Pages">JSP</a> tags to iterate
+over the beers and use their properties, <code>name</code> and <code>id</code>, and fill the table rows with this information. In a browser you should now see a table with a list of beers with <code>Edit</code> and <code>Delete</code> buttons on the right. You can also see a link to the associated brewery that you can click on. Now we implement the delete action for each beer, because it's very easy to do with Couchbase:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+</td><td class="code"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">handleDelete</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+  <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span> <span class="o">{</span>
+
+  <span class="c1">// Split the Request-Path and get the Beer ID out of it</span>
+  <span class="n">String</span> <span class="n">beerId</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">"/"</span><span class="o">)[</span><span class="mi">2</span><span class="o">];</span>
+
+  <span class="c1">// Try to delete the document and store the OperationFuture</span>
+  <span class="n">OperationFuture</span><span class="o">&lt;</span><span class="n">Boolean</span><span class="o">&gt;</span> <span class="n">delete</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">beerId</span><span class="o">);</span>
+
+  <span class="c1">// If the Future succeeded (returned true), redirect to /beers</span>
+  <span class="k">if</span><span class="o">(</span><span class="n">delete</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">sendRedirect</span><span class="o">(</span><span class="s">"/beers"</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>The delete method deletes a document from the cluster based on the given document key. Here, we wait on the <code>OperationFuture</code> to return from the <code>get()</code> method and if the server successfully deletes the item we get <code>true</code> and can redirect to the index action.</p>
+
+<p>Now that we can delete a document, we want to enable users to edit beers.
+The edit action is very similar to the delete action, but it reads and updates the document based on the given ID instead of deleting it. Before we can edit
+a beer, we need to parse the string representation of the JSON document into a Java structure so we can use it in the template. We again make use of the Google GSON library to handle this for us:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+</td><td class="code"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">handleEdit</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+    <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+
+    <span class="c1">// Extract the Beer ID from the URL</span>
+    <span class="n">String</span><span class="o">[]</span> <span class="n">beerId</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+
+    <span class="c1">// If there is a Beer ID</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">beerId</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="c1">// Read the Document (as a JSON string)</span>
+      <span class="n">String</span> <span class="n">document</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">client</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">beerId</span><span class="o">[</span><span class="mi">2</span><span class="o">]);</span>
+
+      <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">beer</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="k">if</span><span class="o">(</span><span class="n">document</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Convert the String into a HashMap</span>
+        <span class="n">beer</span> <span class="o">=</span> <span class="n">gson</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">document</span><span class="o">,</span> <span class="n">HashMap</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="n">beerId</span><span class="o">[</span><span class="mi">2</span><span class="o">]);</span>
+
+        <span class="c1">// Forward the beer to the view</span>
+        <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"beer"</span><span class="o">,</span> <span class="n">beer</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"title"</span><span class="o">,</span> <span class="s">"Modify Beer \""</span> <span class="o">+</span> <span class="n">beer</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"\""</span><span class="o">);</span>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"title"</span><span class="o">,</span> <span class="s">"Create a new beer"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/WEB-INF/beers/edit.jsp"</span><span class="o">).</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+  <span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>If the <code>handleEdit</code> method gets a beer document back from Couchbase Server and parses it into JSON, the document is converted to a <code>HashMap</code> object and then forwarded to the <strong>edit.jsp</strong> template. Also, we define a title variable that we use inside the template to determine whether we want to edit a document or create a new one. We can enable users to create new beers as opposed to editing an existing beer anytime we pass no Beer ID to the edit method. Here is the corresponding <strong>edit.jsp</strong> template:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+<span class="lineno">35</span>
+<span class="lineno">36</span>
+<span class="lineno">37</span>
+<span class="lineno">38</span>
+<span class="lineno">39</span>
+<span class="lineno">40</span>
+<span class="lineno">41</span>
+<span class="lineno">42</span>
+<span class="lineno">43</span>
+<span class="lineno">44</span>
+<span class="lineno">45</span>
+<span class="lineno">46</span>
+<span class="lineno">47</span>
+<span class="lineno">48</span>
+<span class="lineno">49</span>
+<span class="lineno">50</span>
+<span class="lineno">51</span>
+<span class="lineno">52</span>
+<span class="lineno">53</span>
+<span class="lineno">54</span>
+<span class="lineno">55</span>
+<span class="lineno">56</span>
+<span class="lineno">57</span>
+<span class="lineno">58</span>
+<span class="lineno">59</span>
+<span class="lineno">60</span>
+<span class="lineno">61</span>
+</td><td class="code"><span class="err">&lt;</span>%@taglib prefix="t" tagdir="/WEB-INF/tags" %&gt;
+<span class="err">&lt;</span>%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+<span class="err">&lt;</span>%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+<span class="nt">&lt;t:layout&gt;</span>
+  <span class="nt">&lt;jsp:body&gt;</span>
+    <span class="nt">&lt;h3&gt;</span>${title}<span class="nt">&lt;/h3&gt;</span>
+
+    <span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">action=</span><span class="s">"/beers/edit/${beer.id}"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;fieldset&gt;</span>
+        <span class="nt">&lt;legend&gt;</span>General Info<span class="nt">&lt;/legend&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;label&gt;</span>Name<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_name"</span> <span class="na">placeholder=</span><span class="s">"The name of the beer."</span> <span class="na">value=</span><span class="s">"${beer.name}"</span><span class="nt">&gt;</span>
+
+            <span class="nt">&lt;label&gt;</span>Description<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_description"</span> <span class="na">placeholder=</span><span class="s">"A short description."</span> <span class="na">value=</span><span class="s">"${beer.description}"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;label&gt;</span>Style<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_style"</span> <span class="na">placeholder=</span><span class="s">"Bitter? Sweet? Hoppy?"</span> <span class="na">value=</span><span class="s">"${beer.style}"</span><span class="nt">&gt;</span>
+
+            <span class="nt">&lt;label&gt;</span>Category<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_category"</span> <span class="na">placeholder=</span><span class="s">"Ale? Stout? Lager?"</span> <span class="na">value=</span><span class="s">"${beer.category}"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/fieldset&gt;</span>
+      <span class="nt">&lt;fieldset&gt;</span>
+        <span class="nt">&lt;legend&gt;</span>Details<span class="nt">&lt;/legend&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;label&gt;</span>Alcohol (ABV)<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_abv"</span> <span class="na">placeholder=</span><span class="s">"The beer's ABV"</span> <span class="na">value=</span><span class="s">"${beer.abv}"</span><span class="nt">&gt;</span>
+
+            <span class="nt">&lt;label&gt;</span>Biterness (IBU)<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_ibu"</span> <span class="na">placeholder=</span><span class="s">"The beer's IBU"</span> <span class="na">value=</span><span class="s">"${beer.ibu}"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;label&gt;</span>Beer Color (SRM)<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_srm"</span> <span class="na">placeholder=</span><span class="s">"The beer's SRM"</span> <span class="na">value=</span><span class="s">"${beer.srm}"</span><span class="nt">&gt;</span>
+
+            <span class="nt">&lt;label&gt;</span>Universal Product Code (UPC)<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_upc"</span> <span class="na">placeholder=</span><span class="s">"The beer's UPC"</span> <span class="na">value=</span><span class="s">"${beer.upc}"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/fieldset&gt;</span>
+      <span class="nt">&lt;fieldset&gt;</span>
+        <span class="nt">&lt;legend&gt;</span>Brewery<span class="nt">&lt;/legend&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span12"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"span6"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;label&gt;</span>Brewery<span class="nt">&lt;/label&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"beer_brewery_id"</span> <span class="na">placeholder=</span><span class="s">"The brewery"</span> <span class="na">value=</span><span class="s">"${beer.brewery_id}"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/fieldset&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"form-actions"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">class=</span><span class="s">"btn btn-primary"</span><span class="nt">&gt;</span>Save changes<span class="nt">&lt;/button&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/form&gt;</span>
+  <span class="nt">&lt;/jsp:body&gt;</span>
+<span class="nt">&lt;/t:layout&gt;</span>
+</td></tr></tbody></table></div>
+<p>This template is a little bit longer, but that is mainly because we have lots of fields on our beer documents. Note how we use the beer attributes inside the value attributes of the HTML input fields. We also use the unique ID in the form method to dispatch it to the correct URL on submit.</p>
+
+<p>The last thing we need to do for form submission to work is the actual form parsing and storing itself. Since we do form submission through a POST request, we need to implement the <code>doPost()</code> method on our servlet: </p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+</td><td class="code"><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+
+  <span class="c1">// Parse the Beer ID</span>
+  <span class="n">String</span> <span class="n">beerId</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">"/"</span><span class="o">)[</span><span class="mi">2</span><span class="o">];</span>
+  <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">beer</span> <span class="o">=</span> <span class="n">beer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+  <span class="n">Enumeration</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterNames</span><span class="o">();</span>
+
+  <span class="c1">// Iterate over all POST params</span>
+  <span class="k">while</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">hasMoreElements</span><span class="o">())</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">nextElement</span><span class="o">();</span>
+    <span class="k">if</span><span class="o">(!</span><span class="n">key</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"beer_"</span><span class="o">))</span> <span class="o">{</span>
+      <span class="k">continue</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+
+    <span class="c1">// Store them in a HashMap with key and value</span>
+    <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">5</span><span class="o">),</span> <span class="n">value</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="c1">// Add two more fields</span>
+  <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"type"</span><span class="o">,</span> <span class="s">"beer"</span><span class="o">);</span>
+  <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"updated"</span><span class="o">,</span> <span class="k">new</span> <span class="n">Date</span><span class="o">().</span><span class="na">toString</span><span class="o">());</span>
+
+  <span class="c1">// Set (add or override) the document (converted to JSON with GSON)</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">beerId</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">gson</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">beer</span><span class="o">));</span>
+
+  <span class="c1">// Redirect to the show page</span>
+  <span class="n">response</span><span class="o">.</span><span class="na">sendRedirect</span><span class="o">(</span><span class="s">"/beers/show/"</span> <span class="o">+</span> <span class="n">beerId</span><span class="o">);</span>
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>The code iterates over all POST fields and stores them in a <code>HashMap</code> object. We then
+use the <code>set</code> command to store the document to Couchbase Server and use Google
+GSON to translate information out of the <code>HashMap</code> object into a JSON string. In this case, we could also wait for a <code>OperationFuture</code> response and return an error if we determine the <code>set</code> failed.</p>
+
+<p>The last line redirects to a show method, which just shows all fields of the document. Because the patterns are the same as before, here is the <code>handleShow</code> method:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+</td><td class="code"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">handleShow</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+  <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+
+  <span class="c1">// Extract the Beer ID</span>
+  <span class="n">String</span> <span class="n">beerId</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getPathInfo</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">"/"</span><span class="o">)[</span><span class="mi">2</span><span class="o">];</span>
+  <span class="n">String</span> <span class="n">document</span> <span class="o">=</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">client</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">beerId</span><span class="o">);</span>
+  <span class="k">if</span><span class="o">(</span><span class="n">document</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// Parse the JSON and set it for the template if a document was found</span>
+    <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">beer</span> <span class="o">=</span> <span class="n">gson</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">document</span><span class="o">,</span> <span class="n">HashMap</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"beer"</span><span class="o">,</span> <span class="n">beer</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="c1">// render the show.jsp template</span>
+  <span class="n">request</span><span class="o">.</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/WEB-INF/beers/show.jsp"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>Again we extract the ID and if Couchbase Server finds the document it gets parsed into a HashMap and forwarded to the <strong>show.jsp</strong> template. If the server finds no document, we get a return of null in the Java SDK. The template then just prints out all keys and values in a table:</p>
+<div class="highlight xml"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+</td><td class="code"><span class="err">&lt;</span>%@taglib prefix="t" tagdir="/WEB-INF/tags" %&gt;
+<span class="err">&lt;</span>%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+<span class="err">&lt;</span>%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+<span class="nt">&lt;t:layout&gt;</span>
+  <span class="nt">&lt;jsp:body&gt;</span>
+    <span class="nt">&lt;h3&gt;</span>Show Details for Beer "${beer.name}"<span class="nt">&lt;/h3&gt;</span>
+    <span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">"table table-striped"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;tbody&gt;</span>
+        <span class="nt">&lt;c:forEach</span> <span class="na">items=</span><span class="s">"${beer}"</span> <span class="na">var=</span><span class="s">"item"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;tr&gt;</span>
+              <span class="nt">&lt;td&gt;&lt;strong&gt;</span>${item.key}<span class="nt">&lt;/strong&gt;&lt;/td&gt;</span>
+              <span class="nt">&lt;td&gt;</span>${item.value}<span class="nt">&lt;/td&gt;</span>
+          <span class="nt">&lt;/tr&gt;</span>
+        <span class="nt">&lt;/c:forEach&gt;</span>
+      <span class="nt">&lt;/tbody&gt;</span>
+    <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;/jsp:body&gt;</span>
+<span class="nt">&lt;/t:layout&gt;</span>
+</td></tr></tbody></table></div>
+<p>In the <strong>index.jsp</strong> template, you might notice the search box at the top. We can use it to dynamically filter our table results based on the user input. We will use
+nearly the same code for the filter as in the index method; except this time we make use of range queries to define a beginning and end to search for. For more information about performing range queries, see <a href="http://docs.couchbase.com/couchbase-manual-2.2/#view-and-query-pattern-samples">Ordering</a>.</p>
+
+<p>Before we implement the actual Java method, we need to put the following snippet in the <strong>js/beersample.js</strong> file. You might have already done this at the beginning of the tutorial, and if so, you can skip this step. This code takes any search box changes from the UI and updates the table with the JSON returned from the search method:</p>
+<div class="highlight plaintext"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+</td><td class="code">$("#beer-search").keyup(function() {
+   var content = $("#beer-search").val();
+   if(content.length &gt;= 0) {
+       $.getJSON("/beers/search", {"value": content}, function(data) {
+           $("#beer-table tbody tr").remove();
+           for(var i=0;i &lt; data.length; i++) {
+               var html = "&lt;tr&gt;";
+               html += "&lt;td&gt;&lt;a href=\"/beers/show/"+data[i].id+"\"&gt;"+data[i].name+"&lt;/a&gt;&lt;/td&gt;";
+               html += "&lt;td&gt;&lt;a href=\"/breweries/show/"+data[i].brewery+"\"&gt;To Brewery&lt;/a&gt;&lt;/td&gt;";
+               html += "&lt;td&gt;";
+               html += "&lt;a class=\"btn btn-small btn-warning\" href=\"/beers/edit/"+data[i].id+"\"&gt;Edit&lt;/a&gt;\n";
+               html += "&lt;a class=\"btn btn-small btn-danger\" href=\"/beers/delete/"+data[i].id+"\"&gt;Delete&lt;/a&gt;";
+               html += "&lt;/td&gt;";
+               html += "&lt;/tr&gt;";
+               $("#beer-table tbody").append(html);
+           }
+       });
+   }
+});
+</td></tr></tbody></table></div>
+<p>The code waits for key-up events on the search field and then does an AJAX query to the search method on the servlet. The servlet computes the result and sends it back as JSON. The JavaScript then clears the table, iterates over the result, and creates new rows with the new JSON results. The search method looks like this:</p>
+<div class="highlight java"><table class="gutterlines" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td class="gutter gl"><span class="lineno">1</span>
+<span class="lineno">2</span>
+<span class="lineno">3</span>
+<span class="lineno">4</span>
+<span class="lineno">5</span>
+<span class="lineno">6</span>
+<span class="lineno">7</span>
+<span class="lineno">8</span>
+<span class="lineno">9</span>
+<span class="lineno">10</span>
+<span class="lineno">11</span>
+<span class="lineno">12</span>
+<span class="lineno">13</span>
+<span class="lineno">14</span>
+<span class="lineno">15</span>
+<span class="lineno">16</span>
+<span class="lineno">17</span>
+<span class="lineno">18</span>
+<span class="lineno">19</span>
+<span class="lineno">20</span>
+<span class="lineno">21</span>
+<span class="lineno">22</span>
+<span class="lineno">23</span>
+<span class="lineno">24</span>
+<span class="lineno">25</span>
+<span class="lineno">26</span>
+<span class="lineno">27</span>
+<span class="lineno">28</span>
+<span class="lineno">29</span>
+<span class="lineno">30</span>
+<span class="lineno">31</span>
+<span class="lineno">32</span>
+<span class="lineno">33</span>
+<span class="lineno">34</span>
+<span class="lineno">35</span>
+<span class="lineno">36</span>
+<span class="lineno">37</span>
+<span class="lineno">38</span>
+</td><td class="code"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">handleSearch</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+
+  <span class="c1">// Exctract the searched value</span>
+  <span class="n">String</span> <span class="n">startKey</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"value"</span><span class="o">).</span><span class="na">toLowerCase</span><span class="o">();</span>
+
+  <span class="c1">// Prepare a query against the by_name view</span>
+  <span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">getView</span><span class="o">(</span><span class="s">"beer"</span><span class="o">,</span> <span class="s">"by_name"</span><span class="o">);</span>
+  <span class="n">Query</span> <span class="n">query</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Query</span><span class="o">();</span>
+
+  <span class="c1">// Define the query params</span>
+  <span class="n">query</span><span class="o">.</span><span class="na">setIncludeDocs</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="c1">// include the full documents</span>
+    <span class="o">.</span><span class="na">setLimit</span><span class="o">(</span><span class="mi">20</span><span class="o">)</span> <span class="c1">// only show 20 results</span>
+    <span class="o">.</span><span class="na">setRangeStart</span><span class="o">(</span><span class="n">ComplexKey</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">startKey</span><span class="o">))</span> <span class="c1">// Start the search at the given search value</span>
+    <span class="o">.</span><span class="na">setRangeEnd</span><span class="o">(</span><span class="n">ComplexKey</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">startKey</span> <span class="o">+</span> <span class="s">"\uefff"</span><span class="o">));</span> <span class="c1">// End the search at the given search plus the unicode "end"</span>
+
+  <span class="c1">// Query the view</span>
+  <span class="n">ViewResponse</span> <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">view</span><span class="o">,</span> <span class="n">query</span><span class="o">);</span>
+
+  <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">beers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;();</span>
+  <span class="c1">// Iterate over the results</span>
+  <span class="k">for</span><span class="o">(</span><span class="n">ViewRow</span> <span class="n">row</span> <span class="o">:</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// Parse the Document to a HashMap</span>
+    <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">parsedDoc</span> <span class="o">=</span> <span class="n">gson</span><span class="o">.</span><span class="na">fromJson</span><span class="o">((</span><span class="n">String</span><span class="o">)</span><span class="n">row</span><span class="o">.</span><span class="na">getDocument</span><span class="o">(),</span> <span class="n">HashMap</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// Create a new Beer out of it</span>
+      <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">beer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+      <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="n">row</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+      <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">parsedDoc</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"name"</span><span class="o">));</span>
+      <span class="n">beer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"brewery"</span><span class="o">,</span> <span class="n">parsedDoc</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"brewery_id"</span><span class="o">));</span>
+      <span class="n">beers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">beer</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="c1">// Return a JSON representation of all Beers</span>
+  <span class="n">response</span><span class="o">.</span><span class="na">setContentType</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">);</span>
+  <span class="n">PrintWriter</span> <span class="n">out</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">();</span>
+  <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">gson</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">beers</span><span class="o">));</span>
+  <span class="n">out</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+<span class="o">}</span>
+</td></tr></tbody></table></div>
+<p>You can use the <code>setRangeStart()</code> and <code>setRangeEnd()</code> methods to define the key range Couchbase Server returns. If we just provide the start range key, then we
+get all documents starting from our search value. Because we want only those beginning with the search value, we can use the special <code>"\uefff"</code> UTF-8 character at the end, which means "end here." You need to get used to this convention, but it's very fast and efficient when accessing the view.</p>
+
+<p><a id="wrapping-up"></a></p>
+
+<h2 id="toc_9">Wrapping Up</h2>
+
+<p>The tutorial presents an easy approach to start a web application with Couchbase
+Server as the underlying data source. If you want to dig a little bit deeper, see the full source code at <a href="http://github.com/couchbaselabs/beersample-java">couchbaselabs on GitHub</a>. This contains more servlets and code to learn from. This might be extended and updated from time to time, so you might want to watch the repo.</p>
+
+<p>Of course this is only the starting point for Couchbase, but together with the Getting Started Guide and other community resources you are well equipped to start exploring Couchbase Server on your own. Have fun working with Couchbase!</p>
+
+<p><a id="api-reference-started"></a></p>

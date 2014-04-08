@@ -1,0 +1,205 @@
+/* css:bootstrap3 */
+@import bootstrap
+/* css:font-awesome */
+@import font-awesome
+/* css:todo_theme */
+@import todo_theme
+/* css:todo_overrides */
+@import bootstrap_todo_theme_overrides
+/* css:main */
+@import main
+
+/* css:application */
+$screen-xs: "only screen and (max-width : 767px)"
+$screen-sm: "only screen and (min-width : 768px) and (max-width : 991px)"
+$screen-md: "only screen and (min-width : 992px) and (max-width : 1199px)"
+$screen-lg: "only screen and (min-width : 1200px)"
+
+$h1: 36px
+$h2: 30px
+$h3: 24px
+$h4: 18px
+$h5: 14px
+$h6: 12px
+
+$h-resize: 0.65
+
+body
+  background-color: #fff  // #5dace9
+
+div#mediasize
+  position: fixed
+  bottom: 0
+  left: 0
+  font-size: 10px
+  background-color: #000
+  color: white
+  z-index: 1000
+
+main
+  padding: 10px 10px 50px 20px
+  
+  @media #{$screen-xs}
+    padding-bottom: 20px
+  @media #{$screen-sm}
+    padding-bottom: 20px
+  @media #{$screen-md}
+    padding-right: 50px
+    font-size: 14px
+  @media #{$screen-lg}
+    padding-right: 100px
+    font-size: 15px
+    
+  h1, .h1
+    @media #{$screen-xs}
+      font-size: $h1 * $h-resize
+
+  h2, .h2
+    @media #{$screen-xs}
+      font-size: $h2 * $h-resize
+
+  h3, .h3
+    @media #{$screen-xs}
+      font-size: $h3 * $h-resize
+
+  h4, .h4
+    @media #{$screen-xs}
+      font-size: $h4 * $h-resize
+
+  h5, .h5
+    @media #{$screen-xs}
+      font-size: $h5 * $h-resize
+
+  h6, .h6
+    @media #{$screen-xs}
+      font-size: $h6 * $h-resize
+  
+ol, ul
+  @media #{$screen-xs}
+    -webkit-padding-start: 25px
+
+#main-nav
+  font-size: 10px
+  i
+    padding-right: 4px
+  @media #{$screen-xs}
+    font-size: 14px
+    padding-left: 30px
+    i
+      padding-right: 4px
+  @media #{$screen-sm}
+    font-size: 11px
+  @media #{$screen-md}
+    font-size: 13px
+  @media #{$screen-lg}
+    font-size: 12px      
+
+.nav-brand
+  @media #{$screen-xs}
+    font-size: 15px
+  @media #{$screen-sm}
+    font-size: 16px
+  @media #{$screen-md}
+    font-size: 18px
+  @media #{$screen-lg}
+    font-size: 22px    
+
+  
+
+#slim
+  height: 10px
+  
+.dk2
+  background-color: #4d4a56 !important
+
+#minibar 
+  background-color: #660000
+
+#minibar > ul 
+  list-style: none
+
+#minibar > li 
+  float: left
+  line-height: 20px
+
+#minibar > li a 
+  color: white
+
+.footer 
+  position: fixed !important
+  bottom: 0 !important
+  width: 100%  
+
+$so-api-width: 350px
+$so-stats-left-width: 60px
+$so-profile-width: 70px
+$so-info-width: $so-api-width - $so-stats-left-width - 5
+$so-title-width: $so-info-width - $so-profile-width - 2
+$so-avatar-img-size: 25px
+
+#so-api
+  width: $so-api-width
+  > div
+    margin-bottom: 20px    
+.so-info
+  width: $so-info-width
+  margin-left: $so-stats-left-width + 5  
+.so-title
+  width: $so-title-width
+  font-weight: bold
+.so-timestamp
+  font-weight: normal
+.so-profile
+  font-weight: normal
+  text-align:  center
+  font-size: 10px
+.so-reputation
+  font-weight: normal
+  font-size: 8px
+  padding-bottom: 2px
+.so-reputation-separator
+  //display: inline
+  font-weight: normal
+  font-size: 4px
+  padding: 0 4px 0 3px
+  i
+    position: relative
+    //top: -2px
+    top: 0
+.so-stats-left
+  float: left
+  width: $so-stats-left-width
+  font-size: 10px
+  text-align: center
+  margin-right: 5px
+.so-stats-left-outer
+  background: #eee
+  padding: 4px
+.so-stat-count
+  font-weight: bold
+  color: #aaa
+.so-stat-notanswered
+  color: #B17E7E
+  font-weight: bold
+.so-stat-answered
+  color: #E1E134
+  background: #86B083
+  font-weight: bold
+.so-views
+  color: #ccc
+.so-avatar
+  width: $so-profile-width
+  text-align: center
+  float: right
+  margin-left: 2px
+  img
+    width: $so-avatar-img-size
+    
+
+#signin
+  .modal-header
+    border: 0
+  .modal-footer
+    border: 0
+  .modal-body
+    text-align: center

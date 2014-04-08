@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= content_for?(:title) ? yield(:title) : "Couchbase Unibase" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" /> 
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Couchbase Unibase" %>">
+    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>    
+    <%= csrf_meta_tags %>
+    
+    <script src="https://login.persona.org/include.js"></script>
+    <script>
+    <% if session[:user] and session[:user].email %>      
+        var personaEmail = "<%= session[:user].email %>";      
+    <% else %>
+        var personaEmail = null;
+    <% end %> 
+    </script>
+    
+    <%= yield :css %>
+  </head>
+  <body id="<%= controller.controller_name %>" class="<%= controller.action_name %>">
+    <section class="vbox">
+      <%= render 'layouts/header' %>  
+        <section class="hbox stretch">
+          <aside class="aside-xl bg-light lter b-r hidden-print" id="nav">
+            <%= render 'layouts/left_nav_top' %>
+            <%= yield :left_nav %>
+            <%= render 'layouts/left_nav_bot' %>
+          </aside>
+          <section style="overflow: visible">
+            <div class="wrapper">
+             <main role="main">
+               <%= render 'layouts/messages' %>
+               <%= yield %>
+             </main>
+           </div>
+         </section>
+         <aside id="right-panel" class="bg-light lter b-l aside-sm hidden-print">
+           <%= content_for?(:right_panel) ? yield(:right_panel) : render('layouts/right_panel') %>
+         </aside>
+       </section>             
+    <%= render 'layouts/footer' %>
+    </section>
+    <div id="mediasize" class="hidden-print hidden"></div> 
+    <%= render 'layouts/signin' %>
+    <script>
+      $(function() {
+          $("#mediasize").text(document.documentElement.clientWidth + " / " + screen.width);
+      });
+    </script>    
+  </body>
+</html>

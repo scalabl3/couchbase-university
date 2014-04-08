@@ -1,0 +1,31 @@
+<% content_for :css do
+	stylesheet_link_tag 'search'
+end %>
+
+<h1>Search Results <%= @type %></h1>
+<% @results.list.each do |d| %>
+	<div class="result">
+			<div class="title"><%= d.parent_nav_title %> / <a href="<%= d.full_link %>"><%= d.nav_title %></a></div>
+			<div class="short-text"><% 
+				if d.markdown_render?
+					h1 = d.markdown_render.index("</h1>")										
+					if h1
+						h1 += 5
+						t = strip_tags(d.markdown_render[h1..h1+600])
+						last_period = t.rindex(".")
+						last_space = t.rindex(" ")
+					
+						text = t
+					
+						if last_period
+							text = t[0..last_period] + ".."
+						elsif last_space
+							text = t[0..last_space] + "..."
+						end
+						
+					end
+				end
+			%><%= text %></div>
+			<div class="path"><%= d.link %></div>
+	</div>
+<% end %>

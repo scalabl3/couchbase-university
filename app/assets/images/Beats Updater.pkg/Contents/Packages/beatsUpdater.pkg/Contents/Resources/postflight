@@ -1,0 +1,4 @@
+#!/bin/bash
+open '/Applications/Beats Updater.app'
+open  https://www.beatsbydre.com/support/updater/
+exit 0

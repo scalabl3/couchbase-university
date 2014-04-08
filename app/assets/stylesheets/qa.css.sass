@@ -1,0 +1,103 @@
+$q-api-width: 700px
+$q-stats-left-width: 60px
+$q-profile-width: 70px
+$q-info-width: $q-api-width - $q-stats-left-width - 5
+$q-title-width: $q-info-width - $q-profile-width - 2
+$q-avatar-img-size: 25px
+
+#q-api
+  width: $q-api-width
+  > div
+    margin-bottom: 20px    
+.q-info
+  width: $q-info-width
+  margin-left: $q-stats-left-width + 5  
+.q-title
+  width: $q-title-width
+  font-weight: bold
+.q-timestamp
+  font-weight: normal
+.q-profile
+  font-weight: normal
+  text-align:  center
+  font-size: 10px
+.q-reputation
+  font-weight: normal
+  font-size: 8px
+  padding-bottom: 2px
+.q-reputation-separator
+  //display: inline
+  font-weight: normal
+  font-size: 4px
+  padding: 0 4px 0 3px
+  i
+    position: relative
+    //top: -2px
+    top: 0
+.q-stats-left
+  float: left
+  width: $q-stats-left-width
+  font-size: 10px
+  text-align: center
+  margin-right: 5px
+.q-stats-left-outer
+  background: #eee
+  padding: 4px
+.q-stat-count
+  font-weight: bold
+  color: #aaa
+.q-stat-notanswered
+  color: #B17E7E
+  font-weight: bold
+.q-stat-answered
+  color: #E1E134
+  background: #86B083
+  font-weight: bold
+.q-views
+  color: #ccc
+.q-avatar
+  width: $q-profile-width
+  text-align: center
+  float: right
+  margin-left: 2px
+  img
+    width: $q-avatar-img-size      
+
+$answer-width: 400px
+$answer-height: 100px    
+#qa
+  hr.style-eight 
+    padding: 0
+    border: none
+    border-top: medium double #ccc
+    color: #aaa
+    text-align: center
+  hr.style-eight:after
+    font-family: Arial    
+    content: "§"
+    display: inline-block
+    position: relative
+    top: -0.85em
+    font-size: 1.1em
+    padding: 0 0.25em
+    background: white
+  #new-answer
+    .navbar-nav > li > a, .nav > li > a
+      padding: 0
+      
+    li:first-of-type
+    li
+      margin-right: 10px
+    li.separator
+      margin-right: 20px
+      margin-left: 10px
+      color: #ccc
+    ul#compose-buttons
+      border: solid 1px #eee
+    textarea#answer-input
+      width: $answer-width
+      height: $answer-height
+    div.answer-preview
+      border: 3px dotted #eee
+      width: $answer-width
+      height: $answer-height

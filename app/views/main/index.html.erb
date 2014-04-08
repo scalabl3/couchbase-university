@@ -1,0 +1,86 @@
+<div>
+  <div><h3><i class="fa fa-stack-overflow"></i>&nbsp;Stack&nbsp;Overflow&nbsp;<span id="quota" class="small"></span></h3></div>
+  <div id="so-api"></div>
+</div>
+<script>
+var so_questions = new Array();
+
+function display_so(new_data) {
+
+	$.each(new_data, function( index, v ) {
+		so_questions.push(v);
+	});
+	
+	so_questions.sort(function(a,b){
+	  c = a.last_activity_date
+		d = b.last_activity_date
+	  return c<d?-1:c>d?1:0;
+	});
+	
+	so_questions = so_questions.reverse();
+	
+	$("#so-api").html("");
+  
+  $.each(so_questions, function( index, v ) {
+    var item = "<div class='clearfix'>";
+    item += "<div class='so-stats-left'>";
+        item += "<div class='so-stats-left-outer'>";
+          item += "<div class='so-stat-count'>" + v.score + "<br />" + (v.score > 1 || v.score == 0 ? "votes":"vote") + "</div>";
+          if (v.answer_count > 0) {
+            item += "<div class='so-stat-answered'>" + v.answer_count + "<br />" + (v.answer_count > 1 || v.answer_count == 0 ? "answers":"answer") + "</div>";
+          } else {
+            item += "<div class='so-stat-notanswered'>" + v.answer_count + "<br />" + (v.answer_count > 1 || v.answer_count == 0 ? "answers":"answer") + "</div>";
+          }                            
+        item += "</div>";
+        item += "<div class='so-views'>" + v.view_count + " " + (v.view_count > 1 || v.view_count == 0 ? "views":"view") + "</div>";          
+    item += "</div>";
+    item += "<div class='so-info'>";
+      
+      //item += "<div class='so-text'>" + v.text + "</div>";
+      item += "<div class='so-avatar'>"
+        item += "<span class='thumb-sm avatar pull-left m-t-n-xs m-r-xs'></span>";
+        item += "<img class='img-circle' src='" + v.owner.profile_image + "' />";
+        item += "<div class='so-profile'>" + v.owner.display_name + "<div class='so-reputation-separator'><i class='fa fa-circle'></i></div><span class='so-reputation'>" + v.owner.reputation + "</span></div>";
+      item += "</div>";
+			item += "<div class='so-title'><a href='" + v.link + "'>" + v.title + "</a><br /><span class='small so-timestamp'>" + moment.unix(v.last_activity_date).fromNow() + "</span></div>";
+    item += "</div>";
+    
+    $("#so-api").append(item);
+    if (index === 15) { return false; }
+	});
+}
+
+$.ajax({
+    url: "/sofeed",
+    cache: false,
+    success: function(jason){
+			$("#quota").html(jason.quota_remaining + "/" + jason.quota_max);
+			display_so(jason.items)
+    }      
+});
+
+// $.ajax({
+//     url: "https://api.stackexchange.com/2.1/questions?order=desc&sort=activity&tagged=couchbase&site=stackoverflow",
+//     cache: false,
+//     success: function(jason){
+//       $("#quota").html(jason.quota_remaining + "/" + jason.quota_max);
+// 			display_so(jason.items);
+//     }      
+// });
+// $.ajax({
+//     url: "https://api.stackexchange.com/2.1/questions?order=desc&sort=activity&tagged=couchbase-view&site=stackoverflow",
+//     cache: false,
+//     success: function(jason){
+//       $("#quota").html(jason.quota_remaining + "/" + jason.quota_max);
+// 			display_so(jason.items);
+//     } 
+// });
+// $.ajax({
+//     url: "https://api.stackexchange.com/2.1/questions?order=desc&sort=activity&tagged=couchbase-lite&site=stackoverflow",
+//     cache: false,
+//     success: function(jason){
+//       $("#quota").html(jason.quota_remaining + "/" + jason.quota_max)
+// 			display_so(jason.items)
+//     }      
+// });
+</script>

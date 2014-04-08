@@ -1,0 +1,78 @@
+<% content_for :css do
+	stylesheet_link_tag 'training'
+end %>
+
+<% content_for :left_nav do %>	
+	<%= build_nav %>
+<% end %>	 
+
+<% content_for :right_panel do %>
+	<div class="wrapper">
+		<div class="panel-group" id="accordion">
+		  <div class="panel panel-default">
+  			<div class="panel-heading">
+  				<h4 class="panel-title">
+  					<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+  						<i class="fa fa-toggle-right" style="width: 17px;"></i> Related Docs
+  					</a>
+  				</h4>
+  			</div>
+  			<div id="collapseOne" class="panel-collapse collapse">
+  				<div class="panel-body">
+  					blah blah
+  				</div>
+  			</div>
+  		</div>
+  		<div class="panel panel-default">
+  			<div class="panel-heading">
+  				<h4 class="panel-title">
+  					<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+  						<i class="fa fa-toggle-down" style="width: 17px;"></i> Q &amp; A
+  					</a>
+  					<button class="btn btn-primary btn-xs" style="margin: -2px 0 0 10px">Ask A Question</button>
+  				</h4>
+  			</div>
+  			<div id="collapseTwo" class="panel-collapse collapse in">
+  				<div class="panel-body">
+  					<%= render 'qa/partials/context_panel', tags: @course.id, filterable: true %>
+  				</div>
+  			</div>
+  		</div>
+  		<div class="panel panel-default">
+  			<div class="panel-heading">
+  				<h4 class="panel-title">
+  					<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+  						<i class="fa fa-toggle-right" style="width: 17px;"></i> Feedback
+  					</a>
+  				</h4>
+  			</div>
+  			<div id="collapseThree" class="panel-collapse collapse">
+  				<div class="panel-body">
+  					bologna
+  				</div>
+  			</div>
+  		</div>
+  	</div>		 
+  </div>	
+<% end %> 
+
+<ol id="doc-breadcrumb" class="breadcrumb">
+  <li>
+      <a href="/training">
+        <i class="fa fa-home"></i>
+        Online Training
+      </a>
+  </li>
+  <li class="active">&nbsp;<span><strong><%=@course.course %> : <%= @course.title %></strong></span></li>
+</ol>  
+
+
+<h5><%=@course.course %>:</h5>
+<h1 class="course"><%= @course.title %></h1>
+<h3 class="course"><%= @course.subtitle %></h3>
+
+<div class="video-container"><%= @course.source.youtube.embed.html_safe %></div>
+
+<h2 class="course">Curriculum</h2>
+<%= @desc.html_safe %>
+

@@ -1,0 +1,39 @@
+<% content_for :css do
+  stylesheet_link_tag 'training'
+end %>
+
+<% content_for :left_nav do %>  
+  <%= build_nav %>
+<% end %>  
+
+<ol id="doc-breadcrumb" class="breadcrumb">
+  <li class="active">
+      <a href="/training">
+        <i class="fa fa-home"></i>
+        Online Training
+      </a>
+  </li>
+  
+</ol> 
+
+<h1>Online Training</h1>
+
+<div id="courses">
+  <div class="row">
+    <div class="col-lg-8 col-md-10">
+      <% @training.each do |c| %>
+        <div class="row panel" style="padding: 10px; margin: 30px 10px 30px -10px ">
+          <div class="col-lg-7 col-sm-12">
+            <h4 class="course"><%= c.course %></h4>
+            <a href="<%= c.link %>"><h3 class="course"><%= c.title %></h3></a>
+            <h5 class="course"><%= c.subtitle %></h5>
+          </div>
+          <div class="col-lg-5 col-sm-12"><a href="<%= c.link %>"><img class="img-thumbnail" src="/assets/<%= c.id %>_thumb.png"></a></div>
+        </div> 
+      
+      <% end %>
+    </div>
+  </div>
+</div>
+
+

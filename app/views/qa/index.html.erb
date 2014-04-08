@@ -1,0 +1,49 @@
+<% content_for :css do
+  stylesheet_link_tag 'qa'
+end %>
+
+<h1>Q &amp; A</h1>
+
+<form>
+  <strong>Ask A Question</strong><br />
+  <textarea class="input textarea"></textarea>
+</form>
+
+<br />
+  
+<button class="btn btn-xs btn-success" data-sort-field="updated-at" data-toggle-text="most recent|least recent" data-toggle-class="btn-success btn-disabled">most recent</button>    
+
+<button class="btn btn-xs btn-success" data-filter-field="answer-count" data-toggle-text="unanswered|answered" data-toggle-class="btn-success btn-disabled">unanswered</button>    
+<button class="btn btn-xs btn-disabled" data-filter-field="answer-count" data-toggle-text="unanswered|answered" data-toggle-class="btn-success btn-disabled">couchbase server</button>
+<button class="btn btn-xs btn-disabled" data-filter-field="answer-count" data-toggle-text="unanswered|answered" data-toggle-class="btn-success btn-disabled">couchbase lite</button>
+<button class="btn btn-xs btn-disabled" data-filter-field="answer-count" data-toggle-text="unanswered|answered" data-toggle-class="btn-success btn-disabled">sync gateway</button>
+<button class="btn btn-xs btn-disabled" data-filter-field="answer-count" data-toggle-text="unanswered|answered" data-toggle-class="btn-success btn-disabled">query language</button>
+
+<br /><br />
+
+<div id="question-list">
+  <% @q_arr.each do |q| %>
+    <div class='clearfix question' data-answer-count="<%= q.answer_count %>" data-score="<%= q.score %>" data-view-count="<%= q.view_count %>" data-updated-at="<%= q.updated_at %>">
+      <div id="q-<%= q.id %>" class='q-stats-left'>
+          <div class='q-stats-left-outer'>
+            <div class='q-stat-count'><%= q.score %><br /><%= (q.score > 1 || q.score == 0 ? "votes":"vote") %></div>
+            <% if q.answer_count > 0 %>
+              <div class='q-stat-answered'><%= q.score %><br /><%= (q.answer_count > 1 || q.answer_count == 0 ? "answers":"answer") %></div>
+            <% else %>
+              <div class='q-stat-notanswered'><%= q.score %><br /><%= (q.answer_count > 1 || q.answer_count == 0 ? "answers":"answer")%></div>
+            <% end %>
+          </div>
+          <div class='q-views'><%= q.view_count %> <%= (q.view_count > 1 || q.view_count == 0 ? "views":"view") %></div>
+      </div>
+      <div class='q-info'>
+        <div class='q-avatar'>"
+          <span class='thumb-sm avatar pull-left m-t-n-xs m-r-xs'></span>
+          <img class='img-circle' <%= "src=\"" + q.avatar + "\"" if q.avatar? %> />
+          <div class='q-profile'><%= q.author.username %><div class='q-reputation-separator'><i class='fa fa-circle'></i></div><span class='q-reputation'><%= "1000" %></span></div>
+        </div>
+  			<div class='q-title'><a href="/q/<%= q.id %>"><%= q.subject %></a><br /><span class='small q-timestamp'><%= time_ago_in_words(Time.at(q.updated_at)) %> ago</span></div>
+  			<div class='q-body'><%= q.stripped_render %></div>
+      </div> 
+    </div>
+  <% end %>
+</div>

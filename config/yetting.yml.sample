@@ -1,0 +1,33 @@
+defaults: &defaults
+
+  so_feed: http://stackoverflow.com/feeds/tag/couchbase
+  
+  superuser_ids:
+    - 123456
+
+  so_key: asdfasdfasdfasdf
+  so_secret: asdfasdfsdfasdf
+  
+  github_key: asdfasdfasdfasdf
+  github_secret: 23asdfa2323fsadfasdf
+  
+  couchbase_servers: 
+    - 127.0.0.1
+  
+  user_count_start: 100000
+  page_count_start: 500000
+  session_duration: 2160
+  
+  couchbase_buckets:
+    - cbu
+    - cbdocs
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
+  

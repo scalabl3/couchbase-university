@@ -1,0 +1,62 @@
+<% if filterable %>
+<strong>Filter Questions by Typing</strong><br />
+<input name="question" type="text" style="width: 100%" />
+
+<br/><br/>
+<% end %>
+
+<div id="filterable-qa" class="panel-group">  
+</div>
+
+<script>
+  $( document ).ready(function() {
+    $.ajax({
+			url: "/qa/tags/<%= tags %>"
+		}).done(function(d) {
+		    
+		    $("#filterable-qa").html("");
+		    
+        $.each(d.questions, function(i,v){
+          html = ""
+          html += "<div class=\"panel\">"
+          
+          html += "<div class=\"question\">";
+          html += "<a id=\"question-" + i + "\" href=\"#\" data-parent=\"#filterable-qa\" data-toggle=\"collapse\" data-target=\"#answer-" + i + "\">";
+          html += "<i class=\"fa fa-caret-right\"></i> "; 
+          html += v.q 
+          html += "</a>"
+          html += "</div>";
+          
+          html += "<div id=\"answer-" + i + "\" class=\"answer panel-collapse collapse fade\">";
+          html += "<div>" 
+          html += v.a 
+          html += "</div>";
+          html += "</div>";
+          
+          html += "</div>";
+          
+          $("#filterable-qa").append(html);
+        });
+                
+        $("#filterable-qa a").each(function(){
+          
+          $(this).click(function(e){
+             
+             e.preventDefault();
+             
+             $("#filterable-qa a").removeClass('selected');
+             
+             id = $(this).attr("id");
+             target = $(this).attr("data-target");             
+             
+             $(this).toggleClass("selected");
+             
+             $("#" + id + " i").toggleClass('fa-caret-down fa-caret-right');
+
+             //$(target).collapse('toggle');
+          });
+        });   
+        
+		}); 
+  });
+</script>
