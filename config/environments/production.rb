@@ -1,3 +1,9 @@
+require 'log4r'
+require 'log4r/yamlconfigurator'
+require 'log4r/outputter/datefileoutputter'
+require 'log4r/formatter/patternformatter'
+include Log4r 
+
 CouchbaseUniversity::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -47,6 +53,13 @@ CouchbaseUniversity::Application.configure do
   config.log_level = :info
   config.paths['log'] = "/www/log/rails-cbu-#{Rails.env}.log"
 
+	log4r_config = YAML.load_file(File.join(File.dirname(__FILE__),"log4r.yml"))
+	log_cfg = YamlConfigurator
+	log_cfg.decode_yaml( log4r_config['log4r_config'] )
+
+	config.logger = Log4r::Logger['production']		
+	config.logger.info "Application Initialized"    
+		
 	#config.logger = Logger.new(config.paths.log)
 		
   # Prepend all log lines with the following tags.

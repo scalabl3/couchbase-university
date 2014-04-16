@@ -6,11 +6,7 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "sprockets/railtie"
 # require "rails/test_unit/railtie"
-require 'log4r'
-require 'log4r/yamlconfigurator'
-require 'log4r/outputter/datefileoutputter'
-require 'log4r/formatter/patternformatter'
-include Log4r
+
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -63,16 +59,6 @@ module CouchbaseUniversity
 
 		config.assets.paths << Rails.root.join("vendor")			
 		config.assets.paths << Rails.root.join("vendor/todo")
-
 		
-		#config.log_level = :unknown
-		config.log_level = :info
-
-		log4r_config = YAML.load_file(File.join(File.dirname(__FILE__),"log4r.yml"))
-		log_cfg = YamlConfigurator
-		log_cfg.decode_yaml( log4r_config['log4r_config'] )
- 
-		config.logger = Log4r::Logger[Rails.env]		
-		config.logger.info "Application Initialized"
 	end
 end
