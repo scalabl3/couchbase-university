@@ -29,6 +29,7 @@ module CouchbaseUniversity
 		config.sass.preferred_syntax = :sass
 		
 		cache_options = {
+			:node_list => ENV['cbu_couchbase_servers'].split(","),
 			:bucket => 'cbu',
 			:username => 'cbu',
 			:password => '',
@@ -39,6 +40,7 @@ module CouchbaseUniversity
 		session_options = {
 			:expire_after => 60.minutes,
 			:couchbase => {
+				:node_list => ENV['cbu_couchbase_servers'].split(","),
 				:bucket => 'cbu',
 				:username => 'cbu',
 				:password => '',
