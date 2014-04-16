@@ -17,3 +17,7 @@
 
 # ignore actual settings file
 yetting.yml
+
+# ignore .env files
+*.env
+*.env.*

@@ -7,6 +7,9 @@ require "action_mailer/railtie"
 require "sprockets/railtie"
 # require "rails/test_unit/railtie"
 
+require 'dotenv'
+Dotenv.load! ".env"
+CB_SERVERS=ENV['cbu_couchbase_servers'].split(",")
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.

@@ -16,11 +16,14 @@ gem 'bourbon'
 gem 'feedjira'
 gem 'httparty'
 gem 'sidekiq'
+
 gem 'redcarpet'
 gem 'rouge'
 gem 'nokogiri'
 gem 'awesome_print'
 gem 'gravatar-ultimate'
+
+gem 'dotenv'
 gem 'puma'
 gem 'foreman'
 gem 'log4r', git: "git://github.com/colbygk/log4r", branch: "master"
