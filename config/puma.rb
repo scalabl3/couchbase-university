@@ -18,5 +18,13 @@ environment           ENV['env_cbu'] || 'production'
 #state_path            "/www/run/cbu.state"
 
 on_worker_boot do
+	require 'dotenv'
+	Dotenv.load! ".env"  
+	puts ENV['cbu_couchbase_servers']
 
+	CBU = Couchbase.new(bucket: "cbu", node_list: ENV['cbu_couchbase_servers'].split(","))
+	CBD = Couchbase.new(bucket: "cbdocs", node_list: ENV['cbu_couchbase_servers'].split(","))
+
+	CBU.quiet = true
+	CBD.quiet = true 
 end
