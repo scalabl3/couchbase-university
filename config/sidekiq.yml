@@ -1,10 +1,11 @@
 ---
 :concurrency: 30
-:pidfile: tmp/pids/sidekiq.pid
+:pidfile: tmp/pids/sidekiq.pid 
 staging:
   :concurrency: 30
 production:
   :concurrency: 30
+  :pidfile: /www/run/cbu-sidekiq.pid
 :queues:
   - caching
   - misc
