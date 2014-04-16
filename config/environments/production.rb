@@ -45,7 +45,7 @@ CouchbaseUniversity::Application.configure do
   # Set to :debug to see everything in the log.
 	
   config.log_level = :info
-  config.paths.log = "/www/log/rails-cbu-#{Rails.env}.log"
+  config.paths['log'] = "/www/log/rails-cbu-#{Rails.env}.log"
 	#config.logger = Logger.new(config.paths.log)
 		
   # Prepend all log lines with the following tags.
