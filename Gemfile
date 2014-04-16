@@ -8,7 +8,7 @@ gem "couchbase"
 gem "elasticsearch"
 gem "omniauth"
 gem "omniauth-github"
-gem 'cbuassets'
+gem 'cbuassets', git: "git@github.com:scalabl3/cbuassets.git", branch: "master"
 
 gem 'map'
 gem 'yettings'
