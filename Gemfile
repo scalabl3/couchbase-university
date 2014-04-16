@@ -8,10 +8,11 @@ gem "couchbase"
 gem "elasticsearch"
 gem "omniauth"
 gem "omniauth-github"
+gem 'cbuassets'
+
 gem 'map'
 gem 'yettings'
 gem 'bourbon'
-gem 'cbuassets'
 gem 'feedjira'
 gem 'httparty'
 gem 'sidekiq'
@@ -19,9 +20,11 @@ gem 'redcarpet'
 gem 'rouge'
 gem 'nokogiri'
 gem 'awesome_print'
-gem 'log4r', git: "git://github.com/colbygk/log4r", branch: "master"
-gem 'unicorn'
 gem 'gravatar-ultimate'
+gem 'puma'
+gem 'foreman'
+gem 'log4r', git: "git://github.com/colbygk/log4r", branch: "master"
+
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -33,7 +36,7 @@ gem 'uglifier', '>= 1.3.0'
 #gem 'coffee-rails', '~> 4.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer', platforms: :ruby
+#gem 'therubyracer', platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -60,9 +63,6 @@ end
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
-
-# Use unicorn as the app server
-# gem 'unicorn'
 
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development

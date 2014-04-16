@@ -72,7 +72,7 @@ module CouchbaseUniversity
 		log_cfg = YamlConfigurator
 		log_cfg.decode_yaml( log4r_config['log4r_config'] )
  
-		config.logger = Log4r::Logger['rails']		
+		config.logger = Log4r::Logger[Rails.env]		
 		config.logger.info "Application Initialized"
 	end
 end
