@@ -13,5 +13,5 @@ CBD.quiet = true
 Rails.logger.info CBU.inspect if defined?(Rails) and Rails.logger
 Rails.logger.info CBD.inspect if defined?(Rails) and Rails.logger
 
-DocsNavTree.generate
-RenderNavTree.generate
+#DocsNavTree.generate
+#RenderNavTree.generate
