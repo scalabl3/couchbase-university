@@ -21,3 +21,6 @@ yetting.yml
 # ignore .env files
 *.env
 *.env.*
+
+# ignore the secrets key file
+secrets.yml
