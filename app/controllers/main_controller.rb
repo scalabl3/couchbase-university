@@ -22,7 +22,7 @@ class MainController < ApplicationController
     
     unless CBU.get("so::questions::refresh")
       puts "=======>> Refreshing SO Question List"
-      StackOverflow.perform_async(Yetting.couchbase_bucket, Yetting.couchbase_servers, 60)
+      StackOverflow.perform_async('cbu', ENV['cbu_couchbase_servers'].split(","), 60)
     else
       puts "=======>> Using Existing SO Question List"
     end
