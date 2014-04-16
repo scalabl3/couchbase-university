@@ -2,8 +2,8 @@ require 'couchbase'
 
 Rails.logger.info "couchbase_connections.rb" if defined?(Rails) and Rails.logger
 
-CBU = Couchbase.new(bucket: "cbu", node_list: ENV['cbu_couchbase_servers'])
-CBD = Couchbase.new(bucket: "cbdocs", node_list: ENV['cbu_couchbase_servers'])
+CBU = Couchbase.new(bucket: "cbu", node_list: ENV['cbu_couchbase_servers'].split(","))
+CBD = Couchbase.new(bucket: "cbdocs", node_list: ENV['cbu_couchbase_servers'].split(","))
 
 CBU.quiet = true
 CBD.quiet = true
