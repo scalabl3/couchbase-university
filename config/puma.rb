@@ -19,12 +19,17 @@ environment           ENV['env_cbu'] || 'production'
 
 on_worker_boot do
 	require 'dotenv'
+	require 'couchbase'
+	
 	Dotenv.load! ".env"  
 	puts ENV['cbu_couchbase_servers']
 
 	CBU = Couchbase.new(bucket: "cbu", node_list: ENV['cbu_couchbase_servers'].split(","))
 	CBD = Couchbase.new(bucket: "cbdocs", node_list: ENV['cbu_couchbase_servers'].split(","))
 
-	#CBU.quiet = true
-	#CBD.quiet = true 
+	CBU.quiet = true
+	CBD.quiet = true 
+	
+	puts CBU.inspect
+	puts CBD.inspect
 end
