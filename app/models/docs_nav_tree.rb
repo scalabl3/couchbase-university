@@ -50,9 +50,9 @@ class DocsNavTree
     @@flat = Map.new(CBU.get("docs-nav-tree-flat"))
 		@@links_only = []
 
-    ddoc = CBD.design_docs["nav"]
+    ddoc = CBD.design_docs["docs"]
 		
-		ddoc.hierarchy.each do |r|
+		ddoc.nav.each do |r|
 			begin		  
 		    d = Map.new(CBD.get(r.id))		    
 		    @@by_level[d.subtype] ||= []

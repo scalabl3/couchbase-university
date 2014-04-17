@@ -32,6 +32,10 @@ class Cbdoc
   def exists?
     @exists
   end
+
+	def breadcrumb?
+		@cbd.breadcrumb?
+	end
   
   def initialize(attrs)
     
