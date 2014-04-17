@@ -3,11 +3,11 @@ log4r_config:
   
   # loggers
   loggers:
-    - name: development
-      level: DEBUG
-      trace: 'false'
+    - name          : development
+      level         : DEBUG
+      trace         : 'false'
       outputters    : 
-      - development
+        - development
       # - console
       # - console_errors
 
@@ -19,11 +19,11 @@ log4r_config:
       # - console
       # - console_errors
 
-   - name          : production_es
-     level         : INFO
-     trace         : 'false'
-     outputters    : 
-       - production_es
+    - name          : production_es
+      level         : INFO
+      trace         : 'false'
+      outputters    : 
+        - production_es
      # - console
      # - console_errors
       
