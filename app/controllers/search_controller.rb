@@ -2,8 +2,8 @@ class SearchController < ApplicationController
   skip_before_filter :verify_authenticity_token
 	include SearchHelper
   
-  def results		
-		client = Elasticsearch::Client.new hosts: ENV['cbu_elasticsearch_servers'].split(","), log: true
+  def results
+		client = Elasticsearch::Client.new({ hosts: ENV['cbu_elasticsearch_servers'].split(","), log: true})
 		
 		if params[:search_words].start_with? "tags:" 
 			tags = params[:search_words][5..-1]
