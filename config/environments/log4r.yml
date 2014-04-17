@@ -1,6 +1,7 @@
 ---
 log4r_config:
   
+  # loggers
   loggers:
     - name: development
       level: DEBUG
