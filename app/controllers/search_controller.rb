@@ -3,7 +3,6 @@ class SearchController < ApplicationController
 	include SearchHelper
   
   def results
-		client = Elasticsearch::Client.new({ hosts: ENV['cbu_elasticsearch_servers'].split(","), log: true})
 		
 		if params[:search_words].start_with? "tags:" 
 			tags = params[:search_words][5..-1]

@@ -1,7 +1,6 @@
 module SearchHelper
 	def search_markdown(words)
-		client = Elasticsearch::Client.new log: true
-		r = Map.new(client.search index: 'cbdocs', body: { query: { match: { markdown: words } } })
+		r = Map.new(ES.search index: 'cbdocs', body: { query: { match: { markdown: words } } })
 		
 		keys = []
 		keys = r.hits.hits.map { |doc| doc._source.meta.id }
@@ -13,7 +12,7 @@ module SearchHelper
 	
 	def search_tags(words)
 		client = Elasticsearch::Client.new log: true
-		r = Map.new(client.search index: 'cbdocs', body: { query: { match: { tags: words } } })
+		r = Map.new(ES.search index: 'cbdocs', body: { query: { match: { tags: words } } })
 		
 		keys = []
 		keys = r.hits.hits.map { |doc| doc._source.meta.id }
