@@ -16,14 +16,14 @@ log4r_config:
       # - console
       # - console_errors
         - production
-      
+
    - name          : production_es
      level         : INFO
      trace         : 'false'
      outputters    : 
      # - console
      # - console_errors
-      - production_es
+       - production_es
       
       
   # define all outputters (incl. formatters)
