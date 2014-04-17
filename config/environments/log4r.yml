@@ -5,25 +5,25 @@ log4r_config:
       level         : DEBUG
       trace         : 'false'
       outputters    : 
+        - development
       # - console
       # - console_errors
-        - development
 
     - name          : production
       level         : WARN
       trace         : 'false'
       outputters    : 
+        - production
       # - console
       # - console_errors
-        - production
 
    - name          : production_es
      level         : INFO
      trace         : 'false'
      outputters    : 
+       - production_es
      # - console
      # - console_errors
-       - production_es
       
       
   # define all outputters (incl. formatters)
