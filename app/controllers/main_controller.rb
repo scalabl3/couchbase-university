@@ -21,8 +21,7 @@ class MainController < ApplicationController
     @feed = { error: "didn't work" }
     
     unless CBU.get("so::questions::refresh")
-      puts "=======>> Refreshing SO Question List"
-      Rails.logger.info (ENV['cbu_couchbase_servers'].split(",").inspect)
+      puts "=======>> Refreshing SO Question List"      
       StackOverflow.perform_async('cbu', ENV['cbu_couchbase_servers'].split(","), 60)
     else
       puts "=======>> Using Existing SO Question List"

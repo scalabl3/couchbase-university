@@ -163,7 +163,7 @@ class RenderNavTree
       Rails.logger.info "... saving @@html [#{current_node_link}]" if defined?(Rails) and Rails.logger
     end
     
-    File.open("/Users/jasdeep/Desktop/test.html", 'w') { |file| file.write(html) }
+    #File.open("/Users/jasdeep/Desktop/test.html", 'w') { |file| file.write(html) }
     #pp html
     return html
   end
