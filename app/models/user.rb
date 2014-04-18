@@ -49,7 +49,7 @@ class User < ModelBase
 	def self.find(email)
 		k = CBU.get(email)
 		return nil unless k
-		User.new(CBU.get(k))		
+		User.new(CBU.get("u::#{k.to_s}"))		
 	end
 
 	def self.create_uid
