@@ -76,16 +76,23 @@ class Cbdoc
   
   def retrieve_doc
 		if @conn
-			cbd = @conn.get(@doc_key)
+			d = @conn.get(@doc_key)
 		else 
-    	cbd = CBD.get(@doc_key)
+    	d = CBD.get(@doc_key)
 		end
 		
-    if cbd
-      @cbd = Map.new(cbd)      
+    if d
+      @cbd = Map.new(d)      
       @exists = true      
     else
       Rails.logger.error "Cbdoc::retrieve_doc - ERROR: Not Found #{@doc_key}"
+			if @conn
+				Rails.logger.info "@conn.connected? #{@conn.connected?}" 
+				Rails.logger.info "@conn: #{@conn.inspect}" 
+			else
+				Rails.logger.info "@CBD.connected? #{@CBD.connected?}" 
+				Rails.logger.info "@CBD: #{CBD.inspect}" 				
+			end
       nil
     end 
   end
