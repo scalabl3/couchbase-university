@@ -90,7 +90,7 @@ class Cbdoc
 				Rails.logger.info "@conn.connected? #{@conn.connected?}" 
 				Rails.logger.info "@conn: #{@conn.inspect}" 
 			else
-				Rails.logger.info "@CBD.connected? #{@CBD.connected?}" 
+				Rails.logger.info "@CBD.connected? #{CBD.connected?}" 
 				Rails.logger.info "@CBD: #{CBD.inspect}" 				
 			end
       nil
