@@ -11,7 +11,7 @@ class AuthController < ApplicationController
 	def persona_login
 		data = {
 			assertion: params[:assertion],
-			audience: "http://localhost:3000"
+			audience: ENV['cbu_persona_audience']
 		}
 		
 		options = {
