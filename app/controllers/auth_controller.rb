@@ -23,27 +23,21 @@ class AuthController < ApplicationController
 		
 		if response.status and response.status == "okay"
 
-			session[:user] = User.find(response.email)
-			session[:user].email = response.email
-			session[:user].is_authenticated = true
-		
-			if response.email? and !CBU.get(response.email)
-				id = CBU.incr("u::count", initial: 1001)
-		
-				user = {
-					uid: id,
-					doctype: "user",
-					email: response.email,
-					last_login: Time.now.to_i,
-					created_at: Time.now.to_i
-				}
+			u = User.find(response.email)
 			
-				CBU.add("u::#{id}", user)
-				CBU.add("response.email", "u::#{id}")
-			
+			unless u
+				u = User.new({
+					email: response.email.downcase,
+					persona_uid: response.email.downcase
+				})
+				u.save
 			end
 			
-			render js: "currentUser = \"#{response.email}\";"
+			session[:user] = u
+			session[:user].email = response.email
+			session[:user].is_authenticated = true
+			
+			render js: "currentUser = \"#{response.email.downcase}\";"
 		
 		else
 			render js: { error: true, response: response, data: data }

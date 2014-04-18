@@ -5,13 +5,15 @@ class User < ModelBase
 	attr_accessor :twitter_user, :twitter_token, :twitter_info
 	attr_accessor :github_user, :github_token, :github_info
 	attr_accessor :exists, :is_couchbase, :is_authenticated
+	attr_accessor :created_at, :last_login
 	
 	def initialize(attr = {})
+		attr = Map.new(attr)
 		load_parameter_attributes(attr)
 		@exists ||= false
 		@is_couchbase ||= false
 		@is_authenticated ||= false
-		test_data
+		test_data if attr.use_test_data?
 	end	
 	
 	def test_data
@@ -21,6 +23,16 @@ class User < ModelBase
 		@full_name = "Jasdeep Jaitla"
 		@username = "scalabl3"
 		@email = "jasdeep@scalabl3.com"
+	end
+	
+	def save
+		if @uid
+			CBU.replace("u::#{@uid}", self.to_json)
+		else
+			@uid = User.create_uid
+			CBU.add("u::#{@uid}", self.to_json)
+			CBU.add("#{@email}", @uid)
+		end
 	end
 	
 	def toggle_authentication
@@ -39,4 +51,8 @@ class User < ModelBase
 		User.new(CBU.get(k))		
 	end
 
+	def self.create_uid
+		CBU.incr("u::count", initial: 1001)
+	end
+	
 end
