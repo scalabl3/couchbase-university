@@ -49,6 +49,7 @@ class User < ModelBase
 	def self.find(email)
 		k = CBU.get(email)
 		return nil unless k
+		Rails.logger.info "Retrieve User (#{email}): u::#{k.to_s}"
 		User.new(CBU.get("u::#{k.to_s}"))		
 	end
 
