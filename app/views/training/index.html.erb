@@ -28,7 +28,7 @@ end %>
             <a href="<%= c.link %>"><h3 class="course"><%= c.title %></h3></a>
             <h5 class="course"><%= c.subtitle %></h5>
           </div>
-          <div class="col-lg-5 col-sm-12"><a href="<%= c.link %>"><% img_tag "#{c.id}_thumb.png", class: "img-thumbnail" %></a></div>
+          <div class="col-lg-5 col-sm-12"><a href="<%= c.link %>"><%= image_tag "#{c.id}_thumb.png", class: "img-thumbnail" %></a></div>
         </div> 
       
       <% end %>

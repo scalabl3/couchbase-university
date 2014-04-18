@@ -52,19 +52,11 @@ gem 'jbuilder', '~> 1.2'
 
 gem 'bootstrap-sass'
 
-group :development do
+group :development, :production do
   gem 'rails_layout'
 	gem "better_errors"
 	gem "binding_of_caller"
 end
-
-# can remove this later....
-group :production do
-  gem 'rails_layout'
-	gem "better_errors"
-	gem "binding_of_caller"
-end
-
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
