@@ -1,5 +1,5 @@
 workers Integer(ENV['PUMA_WORKERS'] || 1)
-threads Integer(ENV['MIN_THREADS']  || 1), Integer(ENV['MAX_THREADS'] || 12)
+threads Integer(ENV['MIN_THREADS']  || 1), Integer(ENV['MAX_THREADS'] || 1)
 
 #not sure about this... might be messing the couchbase connections up
 #preload_app!
