@@ -92,6 +92,7 @@ GEM
     gravatar-ultimate (2.0.0)
       activesupport (>= 2.3.14)
       rack
+    hashable (0.1.2)
     hashie (2.1.1)
     hike (1.2.3)
     httparty (0.13.1)
@@ -228,6 +229,7 @@ DEPENDENCIES
   font-awesome-rails
   foreman
   gravatar-ultimate
+  hashable
   httparty
   jbuilder (~> 1.2)
   jquery-rails
