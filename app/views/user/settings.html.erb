@@ -1,2 +1,129 @@
-<h1>User#settings</h1>
-<p>Find me in app/views/user/settings.html.erb</p>
+<% content_for :css do
+  stylesheet_link_tag 'user'
+end %>
+
+<div class="row">
+  <div class="col-lg-3 col-md-3">
+    <div style="width: 170px;text-align: center;padding-right: 20px;border-right: 1px solid #eee;">
+      <div><%= image_tag Gravatar.new(session[:user].email).image_url(s: 150), class: "img-circle", style: "margin-bottom: 20px;" %></div>      
+      <ul class="nav nav-pills nav-stacked">
+          <li class="active"><a href="#tab1" data-toggle="tab">General</a></li>
+          <li><a href="#tab2" data-toggle="tab">Notifications</a></li>
+          <li><a href="#tab3" data-toggle="tab">Subscriptions</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-9 col-md-9 tab-content">
+    
+    <div id="tab1" class="tab-pane active">
+      <h1>General Settings</h1>
+    
+      <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="firstname" class="col-sm-3 control-label">First Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="firstname" value="" id="firstname" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lastname" class="col-sm-3 control-label">Last Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="lastname" value="" id="lastname" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email" class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="email" value="<%= session[:user].email %>" id="email" />
+            </div>
+          </div>
+
+      <h1>Phone/SMS</h1>
+      
+          <div class="form-group">
+            <label for="email" class="col-sm-3 control-label">SMS</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="email" value="" placeholder="+1 (123) 456.7890" id="sms" />
+            </div>
+          </div>
+      
+      <h1>Social Logins</h1>
+        
+          <div class="form-group"> 
+            <label for="couchbase" class="col-sm-3 control-label">Couchbase</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="couchbase_email" value="" placeholder="your.name@couchbase.com" id="couchbase_email" />
+            </div>
+            <div class="col-sm-1">
+              <button class="btn">Send Code</button>
+            </div>
+          </div>
+          <div class="form-group"> 
+            <label for="github" class="col-sm-3 control-label">Github</label>
+            <div class="col-sm-9">
+              <label class="control-label">
+                <a href="#">Authenticate</a>
+              </label>
+            </div>
+          </div>
+          <div class="form-group"> 
+            <label for="twitter" class="col-sm-3 control-label">Twitter</label>
+            <div class="col-sm-9">
+              <label class="control-label">
+                <a href="#">Authenticate</a>
+              </label>
+            </div>
+          </div>
+          <div class="form-group"> 
+            <label for="stackoverflow" class="col-sm-3 control-label">Stack&nbsp;Overflow</label>
+            <div class="col-sm-9">
+              <label class="control-label">
+                <a href="#">Authenticate</a>
+              </label>
+            </div>
+          </div>
+          <div class="col-sm-3">&nbsp;</div>
+          <div class="col-sm-9">
+            <button type="submit" class="btn btn-default" style="margin-left: -10px;">Save Settings</button>
+          </div>
+          <div class="clearfix"></div>
+      </form>
+    </div>
+    <div id="tab2" class="tab-pane">
+
+      <h1>Notification Settings</h1>
+      <form class="form-horizontal" role="form">
+        <div class="form-group">
+          <label for="github" class="col-sm-3 control-label">Email</label>
+          <div class="col-sm-9">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"> Don't Send Me Emails
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="github" class="col-sm-3 control-label">SMS</label>
+          <div class="col-sm-9">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"> Don't Send Me Text Messages (SMS)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-3">&nbsp;</div>
+        <div class="col-sm-9">
+          <button type="submit" class="btn btn-default" style="margin-left: -10px;">Save Settings</button>
+        </div>
+        <div class="clearfix"></div> 
+      </form>
+
+    </div>
+    <div id="tab3" class="tab-pane">
+      <h1>Subscription Settings</h1>
+    </div>
+  </div>
+</div>
