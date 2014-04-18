@@ -22,6 +22,8 @@ class AuthController < ApplicationController
 		Rails.logger.info response.inspect
 		
 		if response.status and response.status == "okay"
+
+			session[:user] = User.find(response.email)
 			session[:user].email = response.email
 			session[:user].is_authenticated = true
 		

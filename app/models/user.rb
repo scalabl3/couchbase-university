@@ -35,7 +35,8 @@ class User < ModelBase
 	end
 	
 	def self.find(email)
-		
+		k = CBU.get(email)
+		User.new(CBU.get(k))		
 	end
 
 end
