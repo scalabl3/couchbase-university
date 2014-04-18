@@ -4,11 +4,11 @@ CONTENT_LINK_PREFIX = '/d'
 
 CouchbaseUniversity::Application.routes.draw do
 
-	get '/u/:user' => 'user#profile'
   get '/u/profile' => 'user#profile'
   get '/u/notifications' => 'user#notifications'
   get '/u/settings' => 'user#settings'
-
+	get '/u/:user' => 'user#profile'                                    
+	
   get "/qa" => 'qa#index'
 	get "/qanda" => 'qa#index'  
 	get "/q-and-a" => 'qa#index'  
