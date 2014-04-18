@@ -18,30 +18,36 @@ class AuthController < ApplicationController
 												:body => data.to_json,
     										:headers => { 'Content-Type' => 'application/json' } ))
 		
+		Rails.logger.info data.to_json
 		Rails.logger.info response.inspect
 		
 		if response.status and response.status == "okay"
 			session[:user].email = response.email
 			session[:user].is_authenticated = true
+		
+			if response.email? and !CBU.get(response.email)
+				id = CBU.incr("u::count", initial: 1001)
+		
+				user = {
+					uid: id,
+					doctype: "user",
+					email: response.email,
+					last_login: Time.now.to_i,
+					created_at: Time.now.to_i
+				}
+			
+				CBU.add("u::#{id}", user)
+				CBU.add("response.email", "u::#{id}")
+			
+			end
+			
+			render js: "currentUser = \"#{response.email}\";"
+		
+		else
+			render js: { error: true, response: response, data: data }
 		end
 		
-		if response.email? and !CBU.get(response.email)
-			id = CBU.incr("u::count", initial: 1001)
-		
-			user = {
-				uid: id,
-				doctype: "user",
-				email: response.email,
-				last_login: Time.now.to_i,
-				created_at: Time.now.to_i
-			}
-			
-			CBU.add("u::#{id}", user)
-			CBU.add("response.email", "u::#{id}")
-			
-		end
-		
-		render js: "currentUser = \"jasdeep@scalabl3.com\";"
+
 	end
 	
 	def persona_logout

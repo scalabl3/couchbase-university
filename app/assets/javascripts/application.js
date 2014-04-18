@@ -66,7 +66,12 @@ $( document ).ready(function() {
 	      type: 'POST',
 	      url: '/persona/login', // This is a URL on your website.
 	      data: {assertion: assertion},
-	      success: function(res, status, xhr) { window.location.reload(); },
+	      success: function(res, status, xhr) { 
+	        if (res.error)
+	          console.log(res);
+	        else
+	          window.location.reload(); 
+	      },
 	      error: function(xhr, status, err) {
 	        navigator.id.logout();
 	        console.log("Login failure: " + err);
