@@ -1,5 +1,6 @@
 class ModelBase
-
+	include Hashable
+	
   # generic attribute loader
   def load_parameter_attributes(attributes = {})
     if !attributes.nil?
