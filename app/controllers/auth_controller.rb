@@ -33,9 +33,10 @@ class AuthController < ApplicationController
 				u.save
 			end
 			
+			u.authenticate
+			
 			session[:user] = u
 			session[:user].email = response.email
-			session[:user].is_authenticated = true
 			
 			render js: "currentUser = \"#{response.email.downcase}\";"
 		

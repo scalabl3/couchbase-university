@@ -39,6 +39,13 @@ class User < ModelBase
 		end
 	end
 	
+	def authenticate
+		@is_authenticated = true
+		@last_login = Time.now.to_i
+		save
+		true
+	end
+	
 	def toggle_authentication
 		
 		if @is_authenticated
