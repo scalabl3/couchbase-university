@@ -31,14 +31,14 @@ module CouchbaseUniversity
 		
 		config.sass.preferred_syntax = :sass
 		
-		# cache_options = {
-		# 			:node_list => ENV['cbu_couchbase_servers'].split(","),
-		# 			:bucket => 'cbu',
-		# 			:username => 'cbu',
-		# 			:password => '',
-		# 			:expire_in => 3600,
-		# 		}
-		# 		config.cache_store = :couchbase_store, cache_options
+		cache_options = {
+			:node_list => ENV['cbu_couchbase_servers'].split(","),
+			:bucket => 'cbu',
+			:username => 'cbu',
+			:password => '',
+			:expire_in => 3600,
+		}
+		config.cache_store = :couchbase_store, cache_options
 		
 		session_options = {
 			:expire_after => 3600,

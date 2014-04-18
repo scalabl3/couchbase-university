@@ -1,8 +1,9 @@
-workers Integer(ENV['PUMA_WORKERS'] || 1)
+# testing multiple workers...
+workers Integer(ENV['PUMA_WORKERS'] || 3)
+# multiple thread might be messing up couchbase connections
 threads Integer(ENV['MIN_THREADS']  || 1), Integer(ENV['MAX_THREADS'] || 1)
 
-#not sure about this... might be messing the couchbase connections up
-#preload_app!
+preload_app!
 
 rackup                DefaultRackup
 #port                 ENV['port_cbmodels'] || 3001
@@ -19,5 +20,5 @@ environment           ENV['env_cbu'] || 'production'
 #state_path            "/www/run/cbu.state"
 
 on_worker_boot do
-
+	
 end
