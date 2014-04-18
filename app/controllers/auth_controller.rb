@@ -19,12 +19,14 @@ class AuthController < ApplicationController
 		}
 		response = Map.new(HTTParty.post("https://verifier.login.persona.org/verify", options))
 		
+		Rails.logger.info response.inspect
+		
 		if response.status and response.status == "okay"
 			session[:user].email = response.email
 			session[:user].is_authenticated = true
 		end
 		
-		unless CBU.get(response.email)
+		if response.email? and !CBU.get(response.email)
 			id = CBU.incr("u::count", initial: 1001)
 		
 			user = {
@@ -36,6 +38,7 @@ class AuthController < ApplicationController
 			}
 			
 			CBU.add("u::#{id}", user)
+			CBU.add("response.email", "u::#{id}")
 			
 		end
 		
