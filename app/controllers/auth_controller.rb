@@ -14,10 +14,9 @@ class AuthController < ApplicationController
 			audience: ENV['cbu_persona_audience']
 		}
 		
-		options = {
-			body: data
-		}
-		response = Map.new(HTTParty.post("https://verifier.login.persona.org/verify", options))
+		response = Map.new(HTTParty.post("https://verifier.login.persona.org/verify", 
+												:body => data.to_json,
+    										:headers => { 'Content-Type' => 'application/json' } ))
 		
 		Rails.logger.info response.inspect
 		
