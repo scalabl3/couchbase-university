@@ -20,7 +20,18 @@ $xs-font-size2: 7px
 
 
 #docs
-
+  
+  .notebox
+    padding: 15px 25px
+    margin: 10px 0px
+    border: 1px solid #777
+    border-radius: 8px
+    
+    p:first-of-type
+      font-weight: bold
+  .warning
+    background-color: #eec
+    
   main  
     @media #{$screen-xs}
       font-size: $xs-font-size1

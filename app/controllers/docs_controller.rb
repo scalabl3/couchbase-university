@@ -31,8 +31,15 @@ class DocsController < ApplicationController
   
   def article_images
 		k = "#{params[:node_id]}/#{params[:asset_id]}"
-		d = Map.new(CBD.get(k))
-		send_data ::Base64.decode64(d.binary), type: "#{d.subtype}/#{d.format}", disposition: 'inline'
+		d = CBD.get(k)
+		if d.nil?
+			Rails.logger.info "ArticleImage Missing: #{k}"
+			send_data nil
+		else
+			d = Map.new(d)
+			Rails.logger.info "BinaryData Missing: #{k}" unless d.binary?
+			send_data ::Base64.decode64(d.binary), type: "#{d.subtype}/#{d.format}", disposition: 'inline'
+		end
     #render json: { asset: params[:asset_id], article_id: params[:node_id] }
   end
   
