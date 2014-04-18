@@ -48,6 +48,7 @@ class User < ModelBase
 	
 	def self.find(email)
 		k = CBU.get(email)
+		return nil unless k
 		User.new(CBU.get(k))		
 	end
 
