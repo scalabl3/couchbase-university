@@ -4,6 +4,28 @@ CONTENT_LINK_PREFIX = '/d'
 
 CouchbaseUniversity::Application.routes.draw do
 
+  get 'atom/index'
+
+  get 'atom/java'
+
+  get 'atom/dotnet'
+
+  get 'atom/php'
+
+  get 'atom/python'
+
+  get 'atom/ruby'
+
+  get 'atom/c'
+
+  get 'atom/activity'
+
+  get 'atom/go'
+
+  get 'atom/qa'
+
+  get 'atom/announce'
+
   get '/u/profile' => 'user#profile'
   get '/u/notifications' => 'user#notifications'
   get '/u/settings' => 'user#settings'

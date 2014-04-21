@@ -2,6 +2,15 @@
   stylesheet_link_tag 'docs'
 end %>
 
+<% content_for :left_nav do %>  
+  <%= nav_hierarchy %>
+<% end %>
+
+<% content_for :right_panel do %>
+	<%= render '/global/context_panel' %>
+<% end %> 
+
+
 <ol id="doc-breadcrumb" class="breadcrumb">
   <li>
       <a href="/d/home">
@@ -81,6 +90,3 @@ end %>
   <% end %>
 </table>
 
-<% content_for :left_nav do %>  
-  <%= nav_hierarchy %>
-<% end %>

@@ -6,6 +6,10 @@ end %>
   <%= render 'docs/left_nav', locals: { nav_tree: @nav_tree }  %>
 <% end %>
 
+<% content_for :left_nav do %>  
+  <%= nav_hierarchy %>
+<% end %>
+
 
 <h1 id="toc_0">Tutorial</h1>
 

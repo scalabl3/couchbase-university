@@ -1,0 +1,47 @@
+<div class="wrapper">
+	<div class="panel-group" id="accordion">
+	  <div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+						<i class="fa fa-toggle-right" style="width: 17px;"></i> Related Info
+					</a>
+				</h4>
+			</div>
+			<div id="collapseOne" class="panel-collapse collapse">
+				<div class="panel-body">
+					blah blah
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+						<i class="fa fa-toggle-down" style="width: 17px;"></i> Q &amp; A
+					</a>
+					<button class="btn btn-primary btn-xs" style="margin: -2px 0 0 10px">Ask A Question</button>
+				</h4>
+			</div>
+			<div id="collapseTwo" class="panel-collapse collapse in">
+				<div class="panel-body">
+					<%= render '/global/context_panel_qa', tags: @tags, filterable: true %>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+						<i class="fa fa-toggle-right" style="width: 17px;"></i> Feedback
+					</a>
+				</h4>
+			</div>
+			<div id="collapseThree" class="panel-collapse collapse">
+				<div class="panel-body">
+					bologna
+				</div>
+			</div>
+		</div>
+	</div>		 
+</div>                               
