@@ -1,0 +1,62 @@
+---
+log4r_config:
+  pre_config:
+      root:
+        level: DEBUG
+  loggers:
+    - name          : rails
+      trace         : 'false'
+      outputters    : 
+      - console
+      - console_errors
+      - rails_debug
+
+    - name          : errors
+     
+      trace         : 'false'
+      outputters    : 
+      - console
+      - console_errors
+      - rails_errors
+
+  # define all outputters (incl. formatters)
+  outputters:
+    - type: StdoutOutputter
+      name: console
+      only_at: 
+        - INFO
+        - WARN
+      formatter:
+        date_pattern: '%H:%M:%S'
+        pattern     : '%l::%d:  %m'
+        type        : PatternFormatter
+
+    - type: StderrOutputter
+      name: console_errors
+      only_at: 
+        - ERROR
+        - FATAL
+      formatter:
+        date_pattern: '%H:%M:%S'
+        pattern     : '%l::%d:  %m'
+        type        : PatternFormatter
+
+      
+    - type: FileOutputter
+      name: rails_debug
+      filename: "log/dev.log" # notice the file extension is needed! 
+      trunc: false
+      formatter:
+        date_pattern: '%Y %m %d %H:%M:%S.%L %z'
+        pattern     : '%d %l: %m'
+        type        : PatternFormatter
+
+    - type: FileOutputter
+      name: rails_errors
+      filename: "log/errors.log" # notice the file extension is needed! 
+      trunc: false
+      formatter:
+        date_pattern: '%Y %m %d %H:%M:%S.%L %z'
+        pattern     : '%d %l: %m'
+        type        : PatternFormatter
+
